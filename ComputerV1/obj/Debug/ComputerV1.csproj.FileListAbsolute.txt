@@ -1,0 +1,6 @@
+/goinfre/ktshikot/Desktop/MATHS/ComputerV1/ComputerV1/bin/Debug/ComputerV1.exe
+/goinfre/ktshikot/Desktop/MATHS/ComputerV1/ComputerV1/bin/Debug/ComputerV1.pdb
+/goinfre/ktshikot/Desktop/MATHS/ComputerV1/ComputerV1/obj/Debug/ComputerV1.csprojResolveAssemblyReference.cache
+/goinfre/ktshikot/Desktop/MATHS/ComputerV1/ComputerV1/obj/Debug/ComputerV1.csproj.CoreCompileInputs.cache
+/goinfre/ktshikot/Desktop/MATHS/ComputerV1/ComputerV1/obj/Debug/ComputerV1.exe
+/goinfre/ktshikot/Desktop/MATHS/ComputerV1/ComputerV1/obj/Debug/ComputerV1.pdb
