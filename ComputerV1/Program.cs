@@ -7,30 +7,32 @@ namespace ComputerV1
 {
     internal class Program
     {
+        private static int dgree = 0;
         public static void Main(string[] args)
         {
-            string[] expr;
-            
-
             if (args.Length != 1)
             {
                 Console.WriteLine("No expression provided");
             }
             else
             {
-                expr = split(args[0]);
+                var expr = Split(args[0]);
                 expr = simplify(expr);
                 Console.WriteLine("Reduced from: {0}", String.Join("", expr));
                 if (getDegree(expr))
                 {
-                    //Console.WriteLine("Yay");
-                    QuadraticEq(expr);
+                    if (dgree == 2)
+                        QuadraticEq(expr);
+                    else
+                    {
+                        BinomialSolve(expr);
+                    }
                 }
             }
 
         }
 
-        public static string[] split(string str)
+        public static string[] Split(string str)
         {
             string s = str.Replace(".", ",");
             return (Regex.Split(s.Replace(" ", ""), @"(\-)|(\+)|(\=)"));
@@ -40,7 +42,7 @@ namespace ComputerV1
             int tmp = 0;
             int strt = 0;
             int degree = 0;
-            
+            Double getval = 0;
             foreach (var VARIABLE in expression)
             {
                 if (VARIABLE.Contains("^"))
@@ -48,11 +50,16 @@ namespace ComputerV1
                     strt = VARIABLE.IndexOf('^') + 1;
                     if (Int32.TryParse(VARIABLE.Substring(strt), out tmp))
                     {
-                        if (tmp > degree)
+                        Double.TryParse(VARIABLE.Substring(0, VARIABLE.IndexOf('*')), out getval); 
+
+                        if (tmp > degree && getval > 0)
+                        {
                             degree = tmp;
+                        }
                     }
                 }
             }
+            dgree = degree;
             Console.WriteLine("Polynomial degree: {0}", degree);
             if (degree > 2)
             {
@@ -95,7 +102,6 @@ namespace ComputerV1
                 }
             }
             int tmp;
-            //there are issues with the list needs looking at.
             int rhs = 1;
             if (!(int.TryParse(exprLis[indx + 1].ToString(), out tmp)))
             {
@@ -132,7 +138,7 @@ namespace ComputerV1
             
             for (int i = 0; i < exprLis.Count; i++)
             {
-                if (exprLis[i].ToString().Contains("^2"))
+                if (exprLis[i].ToString().Contains("^2") || dgree < 2)
                 {
                     if ((Arr[0, 1] == null))
                     {
@@ -145,6 +151,11 @@ namespace ComputerV1
                             Arr[0, 0] = exprLis[i - 1].ToString();
                         }
                         Arr[0, 1] = exprLis[i].ToString();
+                    }
+                    else if (dgree < 2)
+                    {
+                        Arr[0, 0] = "+";
+                        Arr[0, 1] = "0*X^2";
                     }
                     else
                     {
@@ -267,9 +278,9 @@ namespace ComputerV1
                     stmp[i] = "";
                 }
             }
-            return (split(String.Join("", stmp)));
+            return (Split(String.Join("", stmp)));
         }
-        //attempt to solve the epression using factoring
+        //attempt to solve the epression using quadratic equation///should not solve is the square root is negative
         public  static void QuadraticEq(string[] expr)
         {
             double a = 0, b = 0, b2 = 0, b3 = 0, c = 0, ac4 = 0, a2 = 0, sqRoot = 0, x1 = 0, x2 = 0;
@@ -313,11 +324,55 @@ namespace ComputerV1
             b3 = b * b;
             ac4 = 4 * (a) * (c);
             a2 = 2 * (a);
-            sqRoot = FindSquareRoot_BS(b3 - (ac4));
 
-            x1 = (b2 + sqRoot) / a2;
-            x2 = (b2 - sqRoot) / a2;
-            Console.WriteLine("----------\nDiscriminant is strictly positive, the two solutions are:\n{0}\n{1}", x1, x2);
+            if (!(b3 - (ac4) < 0))
+            {
+                sqRoot = FindSquareRoot_BS(b3 - (ac4));
+                x1 = (b2 + sqRoot) / a2;
+                x2 = (b2 - sqRoot) / a2;
+                Console.WriteLine("----------\nDiscriminant is strictly positive, the two solutions are:\n{0}\n{1}", x1, x2);
+            }
+            else
+            {
+                Console.WriteLine("Cannot Solve.");
+            }
+            
+        }
+
+        public static void BinomialSolve(string[] expr)
+        {
+            double a = 0, b = 0, x = 0;
+            for (int i = 0; i < expr.Length; i++)
+            {
+                if (expr[i].Contains("^1"))
+                {
+                    double.TryParse(expr[i].Substring(0, expr[i].IndexOf('*')), out a);
+                    Console.WriteLine("a = {0}", a);
+                    if (expr[i - 1].Contains("-"))
+                    {
+                        a *= -1;
+                    }
+                }
+                if (expr[i].Contains("^0"))
+                {
+                    double.TryParse(expr[i].Substring(0, expr[i].IndexOf('*')), out b);
+                    Console.WriteLine("b = {0}", b);
+                    if (expr[i - 1].Contains("-"))
+                    {
+                        b *= -1;
+                    }
+                }
+            }
+            if (b != 0)
+            {
+                x = a / (b * -1);
+                Console.WriteLine("----------\nthe solution is:\n{0}", x);
+            }
+            else
+            {
+                Console.WriteLine("Solution is undefined.");
+            }
+            
         }
         public static float FindSquareRoot_BS(double number)  
         {  
