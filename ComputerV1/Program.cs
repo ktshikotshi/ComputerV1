@@ -23,7 +23,8 @@ namespace ComputerV1
                 Console.WriteLine("Reduced from: {0}", String.Join("", expr));
                 if (getDegree(expr))
                 {
-                    Console.WriteLine("Yay");
+                    //Console.WriteLine("Yay");
+                    QuadraticEq(expr);
                 }
             }
 
@@ -31,7 +32,8 @@ namespace ComputerV1
 
         public static string[] split(string str)
         {
-            return (Regex.Split(str.Replace(" ", ""), @"(\-)|(\+)|(\=)"));
+            string s = str.Replace(".", ",");
+            return (Regex.Split(s.Replace(" ", ""), @"(\-)|(\+)|(\=)"));
         }
         public static bool getDegree(string[] expression)
         {
@@ -161,11 +163,11 @@ namespace ComputerV1
                         if (val1 + val2 < 0)
                         {
                             Arr[0, 0] = "-";
-                            Arr[0, 1] = ((val1 + val2) * -1).ToString()  + Arr[0,1][Arr[0,1].IndexOf('^') - 1]+ "^2";
+                            Arr[0, 1] = ((val1 + val2) * -1).ToString() + "*" + Arr[0,1][Arr[0,1].IndexOf('^') - 1]+ "^2";
                         }
                         else
                         {
-                            Arr[0, 1] = (val1 + val2).ToString()  + Arr[0,1][Arr[0,1].IndexOf('^') - 1]+ "^2";
+                            Arr[0, 1] = (val1 + val2).ToString() + "*" + Arr[0,1][Arr[0,1].IndexOf('^') - 1]+ "^2";
                         }
                     }
                 }
@@ -200,11 +202,11 @@ namespace ComputerV1
                             if (val1 + val2 < 0)
                             {
                                 Arr[1, 0] = "-";
-                                Arr[1, 1] = ((val1 + val2) * -1).ToString()  + Arr[0, 1][Arr[0, 1].IndexOf('^') - 1] + "^1";
+                                Arr[1, 1] = ((val1 + val2) * -1).ToString() + "*" + Arr[0, 1][Arr[0, 1].IndexOf('^') - 1] + "^1";
                             }
                             else
                             {
-                                Arr[1, 1] = (val1 + val2).ToString()  + Arr[0, 1][Arr[0, 1].IndexOf('^') - 1] + "^1";
+                                Arr[1, 1] = (val1 + val2).ToString() + "*" + Arr[0, 1][Arr[0, 1].IndexOf('^') - 1] + "^1";
                             }
                         }
                     }
@@ -238,11 +240,11 @@ namespace ComputerV1
                             if (val1 + val2 < 0)
                             {
                                 Arr[2, 0] = "-";
-                                Arr[2, 1] = ((val1 + val2) * -1).ToString() + Arr[0, 1][Arr[0, 1].IndexOf('^') - 1] + "^0";
+                                Arr[2, 1] = ((val1 + val2) * -1).ToString() + "*" + Arr[0, 1][Arr[0, 1].IndexOf('^') - 1] + "^0";
                             }
                             else
                             {
-                                Arr[2, 1] = (val1 + val2).ToString() + Arr[0, 1][Arr[0, 1].IndexOf('^') - 1] + "^0";
+                                Arr[2, 1] = (val1 + val2).ToString() + "*" + Arr[0, 1][Arr[0, 1].IndexOf('^') - 1] + "^0";
                             }
                         }
                     }
@@ -267,5 +269,75 @@ namespace ComputerV1
             }
             return (split(String.Join("", stmp)));
         }
+        //attempt to solve the epression using factoring
+        public  static void QuadraticEq(string[] expr)
+        {
+            double a = 0, b = 0, b2 = 0, b3 = 0, c = 0, ac4 = 0, a2 = 0, sqRoot = 0, x1 = 0, x2 = 0;
+            for (int i = 0; i < expr.Length; i++)
+            {
+                if (expr[i].Contains("^2"))
+                {
+                    float tmp;
+                    Double.TryParse(expr[i].Substring(0, expr[i].IndexOf('*')), out a);
+                    Console.WriteLine("a = {0}",a);
+                    if (expr[i - 1].Contains("-"))
+                    {
+                        a *= -1;
+                    }
+                }
+                if (expr[i].Contains("^1"))
+                {
+                    double.TryParse(expr[i].Substring(0, expr[i].IndexOf('*') ), out b);
+                    Console.WriteLine("b = {0}", b);
+                    if (expr[i - 1].Contains("-"))
+                    {
+                        b *= -1;
+                    }
+                }
+                if (expr[i].Contains("^0"))
+                {
+                    double.TryParse(expr[i].Substring(0, expr[i].IndexOf('*') ), out c);
+                    Console.WriteLine("c = {0}",c);
+                    if (expr[i - 1].Contains("-"))
+                    {
+                        c *= -1;
+                    }
+                }
+            }
+            foreach (var str in expr)
+            {
+                
+                              
+            }
+            b2 = b * -1;
+            b3 = b * b;
+            ac4 = 4 * (a) * (c);
+            a2 = 2 * (a);
+            sqRoot = FindSquareRoot_BS(b3 - (ac4));
+
+            x1 = (b2 + sqRoot) / a2;
+            x2 = (b2 - sqRoot) / a2;
+            Console.WriteLine("----------\nDiscriminant is strictly positive, the two solutions are:\n{0}\n{1}", x1, x2);
+        }
+        public static float FindSquareRoot_BS(double number)  
+        {  
+            float precision = 0.0001f;  
+            float min = 0;  
+            float max = Convert.ToSingle(number);  
+            float result = 0;  
+            while (max-min > precision)  
+            {  
+                result = (min + max) / 2;  
+                if ((result*result) >= number)  
+                {  
+                    max = result;  
+                }  
+                else  
+                {  
+                    min = result;  
+                }  
+            }  
+            return result;  
+        } 
     }
 }
