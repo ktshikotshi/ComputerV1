@@ -4,8 +4,8 @@
 /goinfre/ktshikot/Desktop/MATHS/ComputerV1/ComputerV1/obj/Debug/ComputerV1.csproj.CoreCompileInputs.cache
 /goinfre/ktshikot/Desktop/MATHS/ComputerV1/ComputerV1/obj/Debug/ComputerV1.exe
 /goinfre/ktshikot/Desktop/MATHS/ComputerV1/ComputerV1/obj/Debug/ComputerV1.pdb
-C:\Users\khuth\Source\Repos\ComputerV1\ComputerV1\bin\Debug\ComputerV1.exe
-C:\Users\khuth\Source\Repos\ComputerV1\ComputerV1\bin\Debug\ComputerV1.pdb
-C:\Users\khuth\Source\Repos\ComputerV1\ComputerV1\obj\Debug\ComputerV1.csproj.CoreCompileInputs.cache
-C:\Users\khuth\Source\Repos\ComputerV1\ComputerV1\obj\Debug\ComputerV1.exe
-C:\Users\khuth\Source\Repos\ComputerV1\ComputerV1\obj\Debug\ComputerV1.pdb
+C:/Users/khuth/Source/Repos/ComputerV1/ComputerV1/bin/Debug/ComputerV1.exe
+C:/Users/khuth/Source/Repos/ComputerV1/ComputerV1/bin/Debug/ComputerV1.pdb
+C:/Users/khuth/Source/Repos/ComputerV1/ComputerV1/obj/Debug/ComputerV1.csproj.CoreCompileInputs.cache
+C:/Users/khuth/Source/Repos/ComputerV1/ComputerV1/obj/Debug/ComputerV1.exe
+C:/Users/khuth/Source/Repos/ComputerV1/ComputerV1/obj/Debug/ComputerV1.pdb
