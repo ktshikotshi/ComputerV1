@@ -21,11 +21,14 @@ namespace ComputerV1
                 dgreeStatus = getDegree(expr);
                 expr = simplify(expr);
                 Console.WriteLine("Polynomial degree: {0}", dgree);
-
-                Console.WriteLine("Reduced from: {0}", String.Join("", expr));
                 if (dgreeStatus)
                 {
-                    if (dgree == 2)
+                    Console.WriteLine("Reduced from: {0}", String.Join("", expr));
+                    if (dgree == -1)
+                    {
+                        Console.WriteLine("Expression is not in the correct format.");
+                    }
+                    else if (dgree == 2)
                         QuadraticEq(expr);
                     else if (dgree == 1)
                         BinomialSolve(expr);
@@ -91,6 +94,11 @@ namespace ComputerV1
                 else
                     break;
             }
+            if (indx == exprLis.Count)
+            {
+                dgree = -1;
+                return expr;
+            }
             if ((exprLis[indx + 1].ToString() == ""))
             {
                 exprLis.Remove("");
@@ -140,8 +148,14 @@ namespace ComputerV1
                     else
                     {
                         double val1 = 0, val2 = 0;
-                        double.TryParse(Arr[0, 1].Substring(0, Arr[0 , 1].IndexOf('^') - 2), out val1);
-                        double.TryParse(exprLis[i].ToString().Substring(0, exprLis[i].ToString().IndexOf('^') - 2), out val2);
+                        if (!(double.TryParse(Arr[0, 1].Substring(0, Arr[0, 1].IndexOf('^') - 2), out val1)))
+                        {
+                            Console.WriteLine("format for term {0} is not correct, coefficient will default to 0", Arr[0, 1]);
+                        }
+                        if (!double.TryParse(exprLis[i].ToString().Substring(0, exprLis[i].ToString().IndexOf('^') - 2), out val2))
+                        {
+                            Console.WriteLine("format for term {0} is not correct, coefficient will default to 0", exprLis[i].ToString());
+                        }
                         if (Arr[0, 0].Contains("-"))
                         {
                             val1 *= -1;
@@ -178,9 +192,15 @@ namespace ComputerV1
                         else
                         {
                             double val1 = 0, val2 = 0;
-                            double.TryParse(Arr[1, 1].Substring(0, Arr[1, 1].IndexOf('^') - 2), out val1);
-                            double.TryParse(exprLis[i].ToString().Substring(0, exprLis[i].ToString().IndexOf('^') - 2), out val2);
-                            if (Arr[1, 0].Contains("-"))
+                            if (!(double.TryParse(Arr[1, 1].Substring(0, Arr[1, 1].IndexOf('^') - 2), out val1)))
+                            {
+                                Console.WriteLine("format for term {0} is not correct, coefficient will default to 0", Arr[1, 1]);
+                            }
+                            if (!double.TryParse(exprLis[i].ToString().Substring(0, exprLis[i].ToString().IndexOf('^') - 2), out val2))
+                            {
+                                Console.WriteLine("format for term {0} is not correct, coefficient will default to 0",exprLis[i].ToString());
+                            }
+                        if (Arr[1, 0].Contains("-"))
                             {
                                 val1 *= -1;
                             }
@@ -216,10 +236,15 @@ namespace ComputerV1
                         else
                         {
                             double val1 = 0, val2 = 0;
-                            double.TryParse(Arr[2, 1].Substring(0, Arr[2, 1].IndexOf('^') - 2), out val1);
-                            double.TryParse(exprLis[i].ToString().Substring(0, exprLis[i].ToString().IndexOf('^') - 2), out val2);
-
-                            if (Arr[2, 0].Contains("-"))
+                        if (!(double.TryParse(Arr[2, 1].Substring(0, Arr[2, 1].IndexOf('^') - 2), out val1)))
+                        {
+                            Console.WriteLine("format for term {0} is not correct, coefficient will default to 0", Arr[2, 1]);
+                        }
+                        if (!double.TryParse(exprLis[i].ToString().Substring(0, exprLis[i].ToString().IndexOf('^') - 2), out val2))
+                        {
+                            Console.WriteLine("format for term {0} is not correct, coefficient will default to 0", exprLis[i].ToString());
+                        }
+                        if (Arr[2, 0].Contains("-"))
                             {
                                 val1 *= -1;
                             }
@@ -265,7 +290,7 @@ namespace ComputerV1
             }
             return (Split(String.Join("", stmp)));
         }
-        //attempt to solve the epression using quadratic equation///should not solve is the square root is negative
+
         public  static void QuadraticEq(string[] expr)
         {
             double a = 0, b = 0, b2 = 0, b3 = 0, c = 0, ac4 = 0, a2 = 0, sqRoot = 0, x1 = 0, x2 = 0;
