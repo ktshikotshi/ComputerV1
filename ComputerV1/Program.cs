@@ -8,6 +8,7 @@ namespace ComputerV1
     internal class Program
     {
         private static int dgree = 0;
+        private static bool dgreeStatus;
         public static void Main(string[] args)
         {
             if (args.Length != 1)
@@ -17,16 +18,23 @@ namespace ComputerV1
             else
             {
                 var expr = Split(args[0]);
+                dgreeStatus = getDegree(expr);
                 expr = simplify(expr);
+                Console.WriteLine("Polynomial degree: {0}", dgree);
+
                 Console.WriteLine("Reduced from: {0}", String.Join("", expr));
-                if (getDegree(expr))
+                if (dgreeStatus)
                 {
                     if (dgree == 2)
                         QuadraticEq(expr);
-                    else
-                    {
+                    else if (dgree == 1)
                         BinomialSolve(expr);
-                    }
+                    else
+                        Console.WriteLine("The polynomial degree is stricly less than 1, I can't solve.");
+                }
+                else if (dgree > 2)
+                {
+                    Console.WriteLine("The polynomial degree is stricly greater than 2, I can't solve.");
                 }
             }
 
@@ -50,9 +58,8 @@ namespace ComputerV1
                     strt = VARIABLE.IndexOf('^') + 1;
                     if (Int32.TryParse(VARIABLE.Substring(strt), out tmp))
                     {
-                        Double.TryParse(VARIABLE.Substring(0, VARIABLE.IndexOf('*')), out getval); 
-
-                        if (tmp > degree && getval > 0)
+                        Double.TryParse(VARIABLE.Substring(0, VARIABLE.IndexOf('*')), out getval);
+                        if (tmp > degree && getval != 0)
                         {
                             degree = tmp;
                         }
@@ -60,10 +67,8 @@ namespace ComputerV1
                 }
             }
             dgree = degree;
-            Console.WriteLine("Polynomial degree: {0}", degree);
             if (degree > 2)
             {
-                Console.WriteLine("The polynomial degree is stricly greater than 2, I can't solve.");
                 return (false);
             }
             return (true);
@@ -75,9 +80,6 @@ namespace ComputerV1
             ArrayList exprLis = new ArrayList();
             
             string[,] Arr = new string[4,2];
-            
-            string rhsSign ="+", rhsValue ="";
-
             foreach (var VARIABLE in expr)
             {
                 exprLis.Add(VARIABLE);
@@ -101,88 +103,65 @@ namespace ComputerV1
                         break;
                 }
             }
-            int tmp;
-            int rhs = 1;
-            if (!(int.TryParse(exprLis[indx + 1].ToString(), out tmp)))
+            //make sure the a sign on the first term.
+            if (!(exprLis[0].ToString().Contains("-")) && !(exprLis[0].ToString().Contains("+")))
+                exprLis.Insert(0, "+");
+            //put everything in the natural form
+            if (exprLis[indx + 1].ToString() != "0")
             {
-                if ((exprLis[indx + 1].ToString().Contains("-")) || (exprLis[indx + 1].ToString().Contains("+")))
+                if (!(exprLis[indx + 1].ToString().Contains("-")) && !(exprLis[indx + 1].ToString().Contains("+")))
+                    exprLis.Insert(indx + 1, "+");
+                for (int i = indx + 1; i < exprLis.Count; i++)
                 {
-                    rhsSign = exprLis[indx + 1].ToString();
-                    rhs = 2;
-                    
+                    if (exprLis[i].ToString().Contains("-"))
+                    {
+                        exprLis[i] = "+";
+                    }
+                    else if (exprLis[i].ToString().Contains("+"))
+                    {
+                        exprLis[i] = "-";
+                    }
                 }
-                rhsValue = exprLis[indx + rhs].ToString();
-                if (rhs == 1)
-                {
-                    exprLis.Add("-");
-                    exprLis[indx] = exprLis[indx + 2];
-                    exprLis[indx + 1] = rhsValue;
-                    exprLis[indx + 2] = "=";
-                    exprLis.Add("0");
-
-                }
-                if (rhs == 2)
-                {
-                    if (exprLis[indx + 1].ToString() == "-")
-                        exprLis[indx + 1] = "+";
-                    else
-                        exprLis[indx + 1] = "-";
-
-                    exprLis[indx] = exprLis[indx + 1];
-                    exprLis[indx + 1] = rhsValue;
-                    exprLis[indx + 2] = "=";
-                    exprLis.Add("0");
-                }
+                exprLis.Remove("=");
+                exprLis.Add("=");
+                exprLis.Add("0");
             }
-            
-            
+            //find duplications of like terms
             for (int i = 0; i < exprLis.Count; i++)
             {
-                if (exprLis[i].ToString().Contains("^2") || dgree < 2)
+                
+                if (exprLis[i].ToString().Contains("^2"))
                 {
-                    if ((Arr[0, 1] == null))
+                    if ((Arr[0, 1] == null) && (Arr[0, 0] == null))
                     {
-                        if (i == 0)
-                        {
-                            Arr[0, 0] = "+";
-                        }
-                        else
-                        {
-                            Arr[0, 0] = exprLis[i - 1].ToString();
-                        }
+                        Arr[0, 0] = exprLis[i - 1].ToString();
                         Arr[0, 1] = exprLis[i].ToString();
-                    }
-                    else if (dgree < 2)
-                    {
-                        Arr[0, 0] = "+";
-                        Arr[0, 1] = "0*X^2";
                     }
                     else
                     {
                         double val1 = 0, val2 = 0;
                         double.TryParse(Arr[2, 1].Substring(0, Arr[0 , 1].IndexOf('^') - 2), out val1);
                         double.TryParse(exprLis[i].ToString().Substring(0, exprLis[i].ToString().IndexOf('^') - 2), out val2);
-                        Console.WriteLine("val1 {0}, val2 {1}", val1, val2);
                         if (Arr[0, 0].Contains("-"))
                         {
                             val1 *= -1;
                         }
-                        if (exprLis[i - 1].ToString().Contains("-"))
+                        if (exprLis[i - 1].ToString().Contains("-") || i > indx)
                         {
                             val2 *= -1;
                         }
                         if (val1 + val2 < 0)
                         {
                             Arr[0, 0] = "-";
-                            Arr[0, 1] = ((val1 + val2) * -1).ToString() + "*" + Arr[0,1][Arr[0,1].IndexOf('^') - 1]+ "^2";
+                            Arr[0, 1] = ((val1 + val2) * -1).ToString() + "*" + exprLis[i].ToString().Substring(exprLis[i].ToString().IndexOf('^') - 1, exprLis[i].ToString().IndexOf('^'));
                         }
                         else
                         {
-                            Arr[0, 1] = (val1 + val2).ToString() + "*" + Arr[0,1][Arr[0,1].IndexOf('^') - 1]+ "^2";
+                            Arr[0, 1] = (val1 + val2).ToString() + "*" + exprLis[i].ToString().Substring(exprLis[i].ToString().IndexOf('^') - 1, exprLis[i].ToString().IndexOf('^'));
                         }
                     }
                 }
-                if (exprLis[i].ToString().Contains("^1"))
+                else if (exprLis[i].ToString().Contains("^1"))
                     {
                         if ((Arr[1, 1] == null))
                         {
@@ -201,27 +180,26 @@ namespace ComputerV1
                             double val1 = 0, val2 = 0;
                             double.TryParse(Arr[2, 1].Substring(0, Arr[1, 1].IndexOf('^') - 2), out val1);
                             double.TryParse(exprLis[i].ToString().Substring(0, exprLis[i].ToString().IndexOf('^') - 2), out val2);
-                            Console.WriteLine("val1 {0}, val2 {1}", val1, val2);
                             if (Arr[1, 0].Contains("-"))
                             {
                                 val1 *= -1;
                             }
-                            if (exprLis[i - 1].ToString().Contains("-"))
+                            if (exprLis[i - 1].ToString().Contains("-") || i > indx)
                             {
                                 val2 *= -1;
                             }
                             if (val1 + val2 < 0)
                             {
                                 Arr[1, 0] = "-";
-                                Arr[1, 1] = ((val1 + val2) * -1).ToString() + "*" + Arr[0, 1][Arr[0, 1].IndexOf('^') - 1] + "^1";
+                                Arr[1, 1] = ((val1 + val2) * -1).ToString() + "*" + exprLis[i].ToString().Substring(exprLis[i].ToString().IndexOf('^') - 1, exprLis[i].ToString().IndexOf('^'));
                             }
                             else
                             {
-                                Arr[1, 1] = (val1 + val2).ToString() + "*" + Arr[0, 1][Arr[0, 1].IndexOf('^') - 1] + "^1";
+                                Arr[1, 1] = (val1 + val2).ToString() + "*" + exprLis[i].ToString().Substring(exprLis[i].ToString().IndexOf('^') - 1, exprLis[i].ToString().IndexOf('^'));
                             }
                         }
                     }
-                    if (exprLis[i].ToString().Contains("^0"))
+                    else if (exprLis[i].ToString().Contains("^0"))
                     {
                         if ((Arr[2, 1] == null))
                         {
@@ -240,30 +218,36 @@ namespace ComputerV1
                             double val1 = 0, val2 = 0;
                             double.TryParse(Arr[2, 1].Substring(0, Arr[2, 1].IndexOf('^') - 2), out val1);
                             double.TryParse(exprLis[i].ToString().Substring(0, exprLis[i].ToString().IndexOf('^') - 2), out val2);
+
                             if (Arr[2, 0].Contains("-"))
                             {
                                 val1 *= -1;
                             }
-                            if (exprLis[i - 1].ToString().Contains("-"))
+                            if (exprLis[i - 1].ToString().Contains("-") || i > indx)
                             {
                                 val2 *= -1;
                             }
                             if (val1 + val2 < 0)
                             {
                                 Arr[2, 0] = "-";
-                                Arr[2, 1] = ((val1 + val2) * -1).ToString() + "*" + Arr[0, 1][Arr[0, 1].IndexOf('^') - 1] + "^0";
+                                Arr[2, 1] = ((val1 + val2) * -1).ToString() + "*" + exprLis[i].ToString().Substring(exprLis[i].ToString().IndexOf('^') - 1, exprLis[i].ToString().IndexOf('^'));
                             }
                             else
                             {
-                                Arr[2, 1] = (val1 + val2).ToString() + "*" + Arr[0, 1][Arr[0, 1].IndexOf('^') - 1] + "^0";
+                                Arr[2, 1] = (val1 + val2).ToString() + "*" + exprLis[i].ToString().Substring(exprLis[i].ToString().IndexOf('^') - 1, exprLis[i].ToString().IndexOf('^'));
                             }
-                        }
                     }
-                if (exprLis[i].ToString().Contains("="))
+                }
+                else if (exprLis[i].ToString().Contains("="))
                 {
                     Arr[3, 0] = "=";
                     Arr[3, 1] = exprLis[i + 1].ToString();
                 }
+            }
+            if (dgree < 2)
+            {
+                Arr[0, 0] = "+";
+                Arr[0, 1] = "0*X^2";
             }
             string[] stmp = new string[4];
 
@@ -288,37 +272,31 @@ namespace ComputerV1
             {
                 if (expr[i].Contains("^2"))
                 {
-                    float tmp;
                     Double.TryParse(expr[i].Substring(0, expr[i].IndexOf('*')), out a);
-                    Console.WriteLine("a = {0}",a);
                     if (expr[i - 1].Contains("-"))
                     {
                         a *= -1;
                     }
+                    Console.WriteLine("a = {0}", a);
                 }
                 if (expr[i].Contains("^1"))
                 {
                     double.TryParse(expr[i].Substring(0, expr[i].IndexOf('*') ), out b);
-                    Console.WriteLine("b = {0}", b);
                     if (expr[i - 1].Contains("-"))
                     {
                         b *= -1;
                     }
+                    Console.WriteLine("b = {0}", b);
                 }
                 if (expr[i].Contains("^0"))
                 {
                     double.TryParse(expr[i].Substring(0, expr[i].IndexOf('*') ), out c);
-                    Console.WriteLine("c = {0}",c);
                     if (expr[i - 1].Contains("-"))
                     {
                         c *= -1;
                     }
+                    Console.WriteLine("c = {0}", c);
                 }
-            }
-            foreach (var str in expr)
-            {
-                
-                              
             }
             b2 = b * -1;
             b3 = b * b;
@@ -330,11 +308,14 @@ namespace ComputerV1
                 sqRoot = FindSquareRoot_BS(b3 - (ac4));
                 x1 = (b2 + sqRoot) / a2;
                 x2 = (b2 - sqRoot) / a2;
-                Console.WriteLine("----------\nDiscriminant is strictly positive, the two solutions are:\n{0}\n{1}", x1, x2);
+                Console.WriteLine("----------\nDiscriminant is strictly positive, the two solutions are:\n{0:N2}\n{1:N2}", x1, x2);
             }
             else
             {
-                Console.WriteLine("Cannot Solve.");
+                sqRoot = FindSquareRoot_BS((b3 - (ac4)) * -1);
+                x1 = sqRoot/a2; //(b2 + sqRoot) / a2;
+                x2 = sqRoot/a2; //(b2 - sqRoot) / a2;
+                Console.WriteLine("----------\nDiscriminant is strictly negative, the two solutions are:\n{2:N2} + {0:N2}i\n{2:N2} - {1:N2}i", x1, x2, b2/a2);
             }
             
         }
@@ -366,7 +347,7 @@ namespace ComputerV1
             if (b != 0)
             {
                 x = a / (b * -1);
-                Console.WriteLine("----------\nthe solution is:\n{0}", x);
+                Console.WriteLine("----------\nthe solution is:\n{0:N2}", x);
             }
             else
             {
