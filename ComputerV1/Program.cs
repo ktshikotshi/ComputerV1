@@ -140,13 +140,13 @@ namespace ComputerV1
                     else
                     {
                         double val1 = 0, val2 = 0;
-                        double.TryParse(Arr[2, 1].Substring(0, Arr[0 , 1].IndexOf('^') - 2), out val1);
+                        double.TryParse(Arr[0, 1].Substring(0, Arr[0 , 1].IndexOf('^') - 2), out val1);
                         double.TryParse(exprLis[i].ToString().Substring(0, exprLis[i].ToString().IndexOf('^') - 2), out val2);
                         if (Arr[0, 0].Contains("-"))
                         {
                             val1 *= -1;
                         }
-                        if (exprLis[i - 1].ToString().Contains("-") || i > indx)
+                        if (exprLis[i - 1].ToString().Contains("-"))
                         {
                             val2 *= -1;
                         }
@@ -161,7 +161,7 @@ namespace ComputerV1
                         }
                     }
                 }
-                else if (exprLis[i].ToString().Contains("^1"))
+                 if (exprLis[i].ToString().Contains("^1"))
                     {
                         if ((Arr[1, 1] == null))
                         {
@@ -178,13 +178,13 @@ namespace ComputerV1
                         else
                         {
                             double val1 = 0, val2 = 0;
-                            double.TryParse(Arr[2, 1].Substring(0, Arr[1, 1].IndexOf('^') - 2), out val1);
+                            double.TryParse(Arr[1, 1].Substring(0, Arr[1, 1].IndexOf('^') - 2), out val1);
                             double.TryParse(exprLis[i].ToString().Substring(0, exprLis[i].ToString().IndexOf('^') - 2), out val2);
                             if (Arr[1, 0].Contains("-"))
                             {
                                 val1 *= -1;
                             }
-                            if (exprLis[i - 1].ToString().Contains("-") || i > indx)
+                            if (exprLis[i - 1].ToString().Contains("-"))
                             {
                                 val2 *= -1;
                             }
@@ -195,11 +195,11 @@ namespace ComputerV1
                             }
                             else
                             {
-                                Arr[1, 1] = (val1 + val2).ToString() + "*" + exprLis[i].ToString().Substring(exprLis[i].ToString().IndexOf('^') - 1, exprLis[i].ToString().IndexOf('^'));
+                            Arr[1, 1] = (val1 + val2).ToString() + "*" + exprLis[i].ToString().Substring(exprLis[i].ToString().IndexOf('^') - 1, exprLis[i].ToString().IndexOf('^'));
                             }
                         }
                     }
-                    else if (exprLis[i].ToString().Contains("^0"))
+                     if (exprLis[i].ToString().Contains("^0"))
                     {
                         if ((Arr[2, 1] == null))
                         {
@@ -223,7 +223,7 @@ namespace ComputerV1
                             {
                                 val1 *= -1;
                             }
-                            if (exprLis[i - 1].ToString().Contains("-") || i > indx)
+                            if (exprLis[i - 1].ToString().Contains("-"))
                             {
                                 val2 *= -1;
                             }
@@ -231,14 +231,15 @@ namespace ComputerV1
                             {
                                 Arr[2, 0] = "-";
                                 Arr[2, 1] = ((val1 + val2) * -1).ToString() + "*" + exprLis[i].ToString().Substring(exprLis[i].ToString().IndexOf('^') - 1, exprLis[i].ToString().IndexOf('^'));
-                            }
-                            else
+
+                        }
+                        else
                             {
-                                Arr[2, 1] = (val1 + val2).ToString() + "*" + exprLis[i].ToString().Substring(exprLis[i].ToString().IndexOf('^') - 1, exprLis[i].ToString().IndexOf('^'));
+                            Arr[2, 1] = (val1 + val2).ToString() + "*" + exprLis[i].ToString().Substring(exprLis[i].ToString().IndexOf('^') - 1, exprLis[i].ToString().IndexOf('^'));
                             }
                     }
                 }
-                else if (exprLis[i].ToString().Contains("="))
+                 if (exprLis[i].ToString().Contains("="))
                 {
                     Arr[3, 0] = "=";
                     Arr[3, 1] = exprLis[i + 1].ToString();
