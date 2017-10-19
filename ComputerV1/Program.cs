@@ -14,7 +14,7 @@ namespace ComputerV1
         
         public static void Main(string[] args)
         {
-            if (!(args.Length > 2))
+            if (!(args.Length >= 2))
             {
                 string[] expr;
                 if (args.Length < 1)
@@ -67,6 +67,7 @@ namespace ComputerV1
             var s = str.Replace(".", ",");
             return (Regex.Split(s.Replace(" ", ""), @"(\-)|(\+)|(\=)"));
         }
+        
         public static bool GetDegree(string[] expression)
         {
             var degree = 0;
@@ -168,6 +169,7 @@ namespace ComputerV1
                 arr[arrLoc, 1] = (val1 + val2).ToString(CultureInfo.InvariantCulture) + "*" + exprLis[i].ToString().Substring(exprLis[i].ToString().IndexOf('^') - 1, exprLis[i].ToString().IndexOf('^'));
             }
         }
+        
         public static string[] Simplify(string[] expr)
         {
             var exprLis = new ArrayList();
