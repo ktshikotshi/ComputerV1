@@ -172,6 +172,7 @@ namespace ComputerV1
         {
             var exprLis = new ArrayList();
             var natural = new string[4,2];
+            var xChar = 'X';
             
             foreach (var str in expr)
             {
@@ -186,7 +187,11 @@ namespace ComputerV1
            //put the equation in the form  a * x^2 + b * x^1 + c * x^0 = 0 
             for (var i = 0; i < exprLis.Count; i++)
             {
-                
+                //get the term character.
+                if (exprLis[i].ToString().Contains("*"))
+                {
+                    xChar = exprLis[i].ToString()[exprLis[i].ToString().IndexOf('*') + 1];
+                }
                 if (exprLis[i].ToString().Contains("^2"))
                 {
                     if ((natural[0, 1] == null) && (natural[0, 0] == null))
@@ -239,7 +244,7 @@ namespace ComputerV1
             if (_dgree < 2)
             {
                 natural[0, 0] = "+";
-                natural[0, 1] = "0*X^2";
+                natural[0, 1] = "0*" + xChar + "^2";
             }
             
             //join the equation back into a single string before spliting it to the proper form again.
