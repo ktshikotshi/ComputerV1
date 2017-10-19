@@ -322,7 +322,7 @@ namespace ComputerV1
                         c *= -1;
                     }
                     Console.WriteLine("c = {0}", c);
-                }
+                } 
             }
             b2 = b * -1;
             b3 = b * b;
