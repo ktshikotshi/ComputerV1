@@ -172,7 +172,6 @@ namespace ComputerV1
         {
             var exprLis = new ArrayList();
             var natural = new string[4,2];
-            var xChar = 'X';
             
             foreach (var str in expr)
             {
@@ -187,11 +186,7 @@ namespace ComputerV1
            //put the equation in the form  a * x^2 + b * x^1 + c * x^0 = 0 
             for (var i = 0; i < exprLis.Count; i++)
             {
-                //get the term character.
-                if (exprLis[i].ToString().Contains("*"))
-                {
-                    xChar = exprLis[i].ToString()[exprLis[i].ToString().IndexOf('*') + 1];
-                }
+                
                 if (exprLis[i].ToString().Contains("^2"))
                 {
                     if ((natural[0, 1] == null) && (natural[0, 0] == null))
@@ -244,7 +239,7 @@ namespace ComputerV1
             if (_dgree < 2)
             {
                 natural[0, 0] = "+";
-                natural[0, 1] = "0*" + xChar + "^2";
+                natural[0, 1] = "0*X^2";
             }
             
             //join the equation back into a single string before spliting it to the proper form again.
@@ -296,19 +291,25 @@ namespace ComputerV1
             ac4 = 4 * (a) * (c);
             a2 = 2 * (a);
 
-            if (!(b3 - (ac4) < 0))
+            if (b3 - ac4 > 0)
             {
                 sqRoot = Sqrt(b3 - (ac4));
                 x1 = (b2 + sqRoot) / a2;
                 x2 = (b2 - sqRoot) / a2;
                 Console.WriteLine("----------\nDiscriminant is strictly positive, the two solutions are:\n{0:N6}\n{1:N6}", x1, x2);
             }
-            else
+            else if (b3 - ac4 < 0)
             {
                 sqRoot = Sqrt((b3 - (ac4)) * -1);
                 x1 = sqRoot/a2; //(b2 + sqRoot) / a2;
                 x2 = sqRoot/a2; //(b2 - sqRoot) / a2;
                 Console.WriteLine("----------\nDiscriminant is strictly negative, the two solutions are:\n{2:N6} + {0:N6}i\n{2:N6} - {1:N6}i", x1, x2, b2/a2);
+            }
+            else
+            {
+                sqRoot = Sqrt(b3 - (ac4));
+                x1 = (b2 + sqRoot) / a2;
+                Console.WriteLine("----------\nDiscriminant is null, the solution is:\n{0:N6}", x1);
             }
             
         }
@@ -336,15 +337,13 @@ namespace ComputerV1
                     b *= -1;
                 }
             }
-            if (b != 0)
+            if (a != 0)
             {
-                var x = a / (b * -1);
+                var x = b / a;
                 Console.WriteLine("----------\nthe solution is:\n{0:N6}", x);
             }
             else
-            {
                 Console.WriteLine("Solution is undefined.");
-            }
             
         }
         
