@@ -66,6 +66,7 @@ namespace ComputerV1
             var s = str.Replace(".", ",");
             return (Regex.Split(s.Replace(" ", ""), @"(\-)|(\+)|(\=)"));
         }
+
         public static string[] ManageNaturalForm(string[] expr)
         {
             char ch = 'X';
@@ -97,7 +98,7 @@ namespace ComputerV1
                     
                     if (Char.IsLetter(ch) && (ch == exprLis[i].ToString()[exprLis[i].ToString().IndexOf('*') + 1]))
                     {
-                        exprLis.Insert(i, "1" + exprLis[i].ToString());
+                        exprLis.Insert(i, "1" + (exprLis[i].ToString().Contains("*") == true ? "" : "*" ) + exprLis[i].ToString());
                         exprLis.RemoveAt(i + 1);
                     }
                     
@@ -112,6 +113,7 @@ namespace ComputerV1
             }
             return (newExpr);
         }
+
         public static bool GetDegree(string[] expression)
         {
             var degree = 0;
