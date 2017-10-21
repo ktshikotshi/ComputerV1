@@ -27,19 +27,18 @@ namespace ComputerV1
                 else
                     expr = Split(args[0]);
                 //check to see if the equation is in the natural form
-                expr =ManageNaturalForm(expr);
-                foreach (var el in expr)
-                    Console.Write(el);
-                Console.WriteLine();
+                expr = ManageNaturalForm(expr);
                 _dgreeStatus = GetDegree(expr);
                 expr = Reduce(expr);
-                if (_dgree > -1)
-                    Console.WriteLine("Polynomial degree: {0}", _dgree);
+                GetDegree(expr);
                 if (_dgreeStatus)
                 {
-                    if (_dgree > -1)
-                        Console.WriteLine("Reduced from: {0}", string.Join(" ", expr));
-                    switch (_dgree)
+                        if (_dgree > -1)
+                        {
+                            Console.WriteLine("Reduced from: {0}", string.Join(" ", expr));
+                            Console.WriteLine("Polynomial degree: {0}", _dgree);
+                        }
+                        switch (_dgree)
                     {
                         case -1:
                             Console.WriteLine("Expression is not in the correct format.");
@@ -77,7 +76,6 @@ namespace ComputerV1
             char ch = 'X';
             double digit = 0;
             int elements = 0;
-            double tmp;
             ArrayList exprLis = new ArrayList();
 
             foreach (var str in expr)
@@ -102,9 +100,9 @@ namespace ComputerV1
                     if ((exprLis[i].ToString().Length == 1 && Char.IsLetter(ch)))
                         exprLis[i] = ch + "^1";
                     
-                    if (Char.IsLetter(ch)/* && (TryParse(exprLis[i].ToString().Substring(exprLis[i].ToString().IndexOf('*')), out tmp))*/)
+                    if (Char.IsLetter(ch) && (ch == exprLis[i].ToString()[exprLis[i].ToString().IndexOf('*') + 1]))
                     {
-                        exprLis.Insert(i, "1*" + exprLis[i].ToString());
+                        exprLis.Insert(i, "1" + exprLis[i].ToString());
                         exprLis.RemoveAt(i + 1);
                     }
                     
@@ -129,7 +127,10 @@ namespace ComputerV1
                 var tmp = 0;
                 if (!TryParse(str.Substring(strt), out tmp)) continue;
                 double getval = 0;
-                TryParse(str.Substring(0, str.IndexOf('*')), out getval);
+                if (str.Contains("*"))
+                    TryParse(str.Substring(0, str.IndexOf('*')), out getval);
+                else
+                    return (false);
                 if (tmp > degree && getval != 0)
                 {
                     degree = tmp;
@@ -193,14 +194,21 @@ namespace ComputerV1
 
         public static void MergeDuplicates(ref string[,] arr, ArrayList exprLis, int i, int arrLoc)
         {
-            double val1 = 0, val2 = 0;
-            if (!(TryParse(arr[arrLoc, 1].Substring(0, arr[arrLoc, 1].IndexOf('^') - 2), out val1)))
+            double val1 = 0;
+            double val2 = 0;
+            int v1loc = arr[arrLoc, 1].IndexOf('^');
+            int v2loc = exprLis[i].ToString().IndexOf('^');
+            //each term should have the following pettern
+            string rgxPar = @"^\d+\*[a-z]\^\d$";
+
+            //check if the format of each term matches the format required for calculation
+            if ((!TryParse(arr[arrLoc, 1].Substring(0, v1loc >= 2 && Regex.IsMatch(arr[arrLoc, 1].ToString(),rgxPar, RegexOptions.IgnoreCase) ? v1loc - 2 : 0), out val1) ||
+                !TryParse(exprLis[i].ToString().Substring(0, v2loc >= 2 && Regex.IsMatch(arr[arrLoc, 1].ToString(), rgxPar, RegexOptions.IgnoreCase) ? v2loc - 2 : 0), out val2)))
             {
-                Console.WriteLine("format for term {0} is not correct, coefficient will default to 0", arr[0, 1]);
-            }
-            if (!TryParse(exprLis[i].ToString().Substring(0, exprLis[i].ToString().IndexOf('^') - 2), out val2))
-            {
-                Console.WriteLine("format for term {0} is not correct, coefficient will default to 0", exprLis[i].ToString());
+                //stop execution, if the term is the wrong format
+                Console.WriteLine("format for term {0} is not correct, please fix it and try again.", exprLis[i].ToString());
+                _dgreeStatus = false;
+                return ;
             }
             if (arr[arrLoc, 0].Contains("-"))
             {
@@ -213,11 +221,11 @@ namespace ComputerV1
             if (val1 + val2 < 0)
             {
                 arr[arrLoc, 0] = "-";
-                arr[arrLoc, 1] = ((val1 + val2) * -1).ToString(CultureInfo.InvariantCulture) + "*" + exprLis[i].ToString().Substring(exprLis[i].ToString().IndexOf('^') - 1, exprLis[i].ToString().IndexOf('^'));
+                arr[arrLoc, 1] = ((val1 + val2) * -1).ToString() + Regex.Match(arr[arrLoc, 1].ToString(), @"\*[a-z]\^\d$", RegexOptions.IgnoreCase);
             }
             else
             {
-                arr[arrLoc, 1] = (val1 + val2).ToString(CultureInfo.InvariantCulture) + "*" + exprLis[i].ToString().Substring(exprLis[i].ToString().IndexOf('^') - 1, exprLis[i].ToString().IndexOf('^'));
+                arr[arrLoc, 1] = (val1 + val2).ToString() + Regex.Match(arr[arrLoc, 1].ToString(), @"\*[a-z]\^\d$", RegexOptions.IgnoreCase);
             }
         }
         
@@ -287,7 +295,16 @@ namespace ComputerV1
                 natural[0, 0] = "+";
                 natural[0, 1] = "0*" + _termChar + "^2";
             }
-            
+            if (natural[1, 1] == null)
+            {
+                natural[1, 0] = "+";
+                natural[1, 1] = "0*" + _termChar + "^1";
+            }
+            if (natural[2, 1] == null)
+            {
+                natural[2, 0] = "+";
+                natural[2, 1] = "0*" + _termChar + "^0";
+            }
             //join the equation back into a single string before spliting it to the proper form again.
             var stmp = new string[4];
 
@@ -329,39 +346,44 @@ namespace ComputerV1
                 if (expr[i - 1].Contains("-"))
                     c *= -1;
             }
+            if (a == 0)
+            {
+                BinomialSolve(expr);
+                return;
+            }
             Console.WriteLine("----------");
-            Console.WriteLine("a = {0:#.###}, b = {1:#.###}, c = {2:#.###}", a, b ,c);
+            Console.WriteLine("a = {0:0.###}, b = {1:0.###}, c = {2:0.###}", a, b ,c);
             Console.WriteLine("----------");
             b2 = b * -1;
             b3 = b * b;
             ac4 = 4 * (a) * (c);
             a2 = 2 * (a);
-            Console.WriteLine("{3} = (-({1:#.###}) ± srt({1:#.###}^2 - 4({0:#.###})({2:#.###}))) / 2({0:#.###})", a, b, c, _termChar);
-            Console.WriteLine("{4} = ( {0:#.###} ± srt({1:#.###} - {2:#.###})) / {3:#.###}", b2, b3, ac4 >= 0 ? ac4 : ac4 * -1, a2, _termChar);
-            Console.WriteLine("{3} = ( {0:#.###} ± srt({1:#.###})) / {2:#.###}", b2, b3 - ac4, a2, _termChar);
+            Console.WriteLine("{3} = (-({1:0.###}) ± √({1:0.###}^2 - 4({0:0.###})({2:0.###}))) / 2({0:0.###})", a, b, c, _termChar);
+            Console.WriteLine("{4} = ( {0:0.###} ± √({1:0.###} - {2:0.###})) / {3:0.###}", b2, b3, ac4 >= 0 ? ac4 : ac4 * -1, a2, _termChar);
+            Console.WriteLine("{3} = ( {0:0.###} ± √({1:0.###})) / {2:0.###}", b2, b3 - ac4, a2, _termChar);
             if (b3 - ac4 > 0)
             {
                 sqRoot = Sqrt(b3 - (ac4));
-                Console.WriteLine("{3} = ({0:#.###} ± {1:#.###}) / {2:#.###}", b2, sqRoot, a2, _termChar);
+                Console.WriteLine("{3} = ({0:0.###} ± {1:0.###}) / {2:0.###}", b2, sqRoot, a2, _termChar);
                 x1 = (b2 + sqRoot) / a2;
                 x2 = (b2 - sqRoot) / a2;
-                Console.WriteLine("----------\nDiscriminant is strictly positive, the two solutions are:\n{0:#.######}\n{1:#.######}", x1, x2);
+                Console.WriteLine("----------\nDiscriminant is strictly positive, the two solutions are:\n{0:0.###}\n{1:0.###}", x1, x2);
             }
             else if (b3 - ac4 < 0)
             {
                 sqRoot = Sqrt((b3 - (ac4)) * -1);
-                Console.WriteLine("{3} = ({0:#.###} ± {1:#.###} * i ) / {2:#.###}", b2, sqRoot, a2, _termChar);
-                Console.WriteLine("{3} = ({0:#.###} / {2:#.###}) ± ({1:#.###} / {2:#.###}) * i", b2, sqRoot, a2, _termChar);
+                Console.WriteLine("{3} = ({0:0.###} ± {1:0.###} * i ) / {2:0.###}", b2, sqRoot, a2, _termChar);
+                Console.WriteLine("{3} = ({0:0.###} / {2:0.###}) ± ({1:0.###} / {2:0.###}) * i", b2, sqRoot, a2, _termChar);
                 x1 = sqRoot/a2; //(b2 + sqRoot) / a2;
                 x2 = sqRoot/a2; //(b2 - sqRoot) / a2;
-                Console.WriteLine("----------\nDiscriminant is strictly negative, the two solutions are:\n{2:#.###} + {0:#.###}i\n{2:#.###} - {1:#.###}i", x1, x2, b2/a2);
+                Console.WriteLine("----------\nDiscriminant is strictly negative, the two solutions are:\n{2:0.###} + {0:0.###}i\n{2:0.###} - {1:0.###}i", x1, x2, b2/a2);
             }
             else
             {
                 sqRoot = Sqrt(b3 - (ac4));
-                Console.WriteLine("{3} = ({0:#.###} ± {1:#.###}) / {2:#.###}", b2, sqRoot, a2, _termChar);
+                Console.WriteLine("{3} = ({0:0.###} ± {1:0.###}) / {2:0.###}", b2, sqRoot, a2, _termChar);
                 x1 = (b2 + sqRoot) / a2;
-                Console.WriteLine("----------\nDiscriminant is null, the solution is:\n{0:#.######}", x1);
+                Console.WriteLine("----------\nDiscriminant is null, the solution is:\n{0:0.###}", x1);
             }
             
         }
@@ -388,13 +410,13 @@ namespace ComputerV1
                 }
             }
             Console.WriteLine("----------");
-            Console.WriteLine("a = {0:#.###}, b = {1:#.###}", a, b);
+            Console.WriteLine("a = {0:0.###}, b = {1:0.###}", a, b);
             Console.WriteLine("----------");
             if (a != 0)
             {
-                Console.WriteLine("{1:#.###} / {1:#.###} * {2} = {0:#.###} / {1:#.###}", b, a, _termChar);
+                Console.WriteLine("({1:0.###} / {1:0.###}) * {2} = {0:0.###} / {1:0.###}", b, a, _termChar);
                 var x = b / a;
-                Console.WriteLine("----------\nthe solution is:\n{0:#.######}", x);
+                Console.WriteLine("----------\nthe solution is:\n{0:0.###}", x);
             }
             else
                 Console.WriteLine("Solution is undefined.");
@@ -404,7 +426,7 @@ namespace ComputerV1
         //square root function.
         public static float Sqrt(double number)
         {
-            const float precision = 0.000001f;
+            const float precision = 0.01f;
             float min = 0, result = 0;
             var max = Convert.ToSingle(number);
             
