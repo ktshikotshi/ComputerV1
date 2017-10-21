@@ -54,7 +54,7 @@ namespace ComputerV1
                             break;
                     }
                 }
-                else
+                else if (_dgree > 2)
                     Console.WriteLine("The polynomial degree is stricly greater than 2, I can't solve.");
             }
             else
@@ -82,12 +82,12 @@ namespace ComputerV1
             for (int i = 0; i < exprLis.Count; i++)
             {
                 if (exprLis[i].ToString().Contains("*"))
-                    ch = ch = exprLis[i].ToString()[exprLis[i].ToString().IndexOf('*') + 1];
+                    ch = exprLis[i].ToString()[exprLis[i].ToString().IndexOf('*') + 1];
                 if ((exprLis[i].ToString().Contains("*") && !(exprLis[i].ToString().Contains("^"))))
                     exprLis[i] = exprLis[i] + "^1";
                 if (TryParse(exprLis[i].ToString(), out digit))
                 {
-                    exprLis[i] = exprLis[i].ToString() + "*" + ch + "^0";
+                    exprLis[i] = exprLis[i].ToString() + "*" + _termChar + "^0";
                 }
                 else if ((exprLis[i].ToString().Length == 1) || (exprLis[i].ToString().Length == 3 && exprLis[i].ToString().Contains("^2"))
                     || exprLis[i].ToString().Contains("*"))
@@ -149,7 +149,8 @@ namespace ComputerV1
             }
             if (indx == exprLis.Count)
             {
-                _dgree = -1;
+                _dgreeStatus = false;
+                Console.WriteLine("The input is not an equation");
                 return exprLis;
             }
             if ((exprLis[indx + 1].ToString() == ""))
@@ -237,9 +238,9 @@ namespace ComputerV1
             //put all the terms on the left side of the equation.
             exprLis = NormalForm(exprLis);
             //stop exacution if  there is no equal sign on the input
-            if (_dgree == -1)
+            if (_dgreeStatus == false)
                 return expr;
-           //put the equation in the form  a * x^2 + b * x^1 + c * x^0 = 0 
+           //put the equation in the form  + a * x^2 + b * x^1 + c * x^0 = 0 
             for (var i = 0; i < exprLis.Count; i++)
             {
                 //get the term character.
