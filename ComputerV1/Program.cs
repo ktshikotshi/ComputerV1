@@ -11,6 +11,7 @@ namespace ComputerV1
     {
         private static int _dgree = 0;
         private static bool _dgreeStatus;
+        private static char _termChar = 'X';
         
         public static void Main(string[] args)
         {
@@ -25,15 +26,19 @@ namespace ComputerV1
                 }
                 else
                     expr = Split(args[0]);
-
+                //check to see if the equation is in the natural form
+                expr =ManageNaturalForm(expr);
+                foreach (var el in expr)
+                    Console.Write(el);
+                Console.WriteLine();
                 _dgreeStatus = GetDegree(expr);
-                expr = Simplify(expr);
+                expr = Reduce(expr);
                 if (_dgree > -1)
                     Console.WriteLine("Polynomial degree: {0}", _dgree);
                 if (_dgreeStatus)
                 {
                     if (_dgree > -1)
-                        Console.WriteLine("Reduced from: {0}", string.Join("", expr));
+                        Console.WriteLine("Reduced from: {0}", string.Join(" ", expr));
                     switch (_dgree)
                     {
                         case -1:
@@ -67,7 +72,53 @@ namespace ComputerV1
             var s = str.Replace(".", ",");
             return (Regex.Split(s.Replace(" ", ""), @"(\-)|(\+)|(\=)"));
         }
-        
+        public static string[] ManageNaturalForm(string[] expr)
+        {
+            char ch = 'X';
+            double digit = 0;
+            int elements = 0;
+            double tmp;
+            ArrayList exprLis = new ArrayList();
+
+            foreach (var str in expr)
+            {
+                exprLis.Add(str);
+                elements++;
+            }
+            for (int i = 0; i < exprLis.Count; i++)
+            {
+                if (exprLis[i].ToString().Contains("*"))
+                    ch = ch = exprLis[i].ToString()[exprLis[i].ToString().IndexOf('*') + 1];
+                if ((exprLis[i].ToString().Contains("*") && !(exprLis[i].ToString().Contains("^"))))
+                    exprLis[i] = exprLis[i] + "^1";
+                if (TryParse(exprLis[i].ToString(), out digit))
+                {
+                    exprLis[i] = exprLis[i].ToString() + "*" + ch + "^0";
+                }
+                else if ((exprLis[i].ToString().Length == 1) || (exprLis[i].ToString().Length == 3 && exprLis[i].ToString().Contains("^2"))
+                    || exprLis[i].ToString().Contains("*"))
+                {
+                    ch = exprLis[i].ToString()[0];
+                    if ((exprLis[i].ToString().Length == 1 && Char.IsLetter(ch)))
+                        exprLis[i] = ch + "^1";
+                    
+                    if (Char.IsLetter(ch)/* && (TryParse(exprLis[i].ToString().Substring(exprLis[i].ToString().IndexOf('*')), out tmp))*/)
+                    {
+                        exprLis.Insert(i, "1*" + exprLis[i].ToString());
+                        exprLis.RemoveAt(i + 1);
+                    }
+                    
+                }   
+            }
+            string[] newExpr = new string[elements];
+            int count = 0;
+            foreach (var el in exprLis)
+            {
+                newExpr[count] = el.ToString();
+                count++;
+            }
+            return (newExpr);
+        }
         public static bool GetDegree(string[] expression)
         {
             var degree = 0;
@@ -88,7 +139,7 @@ namespace ComputerV1
             return degree <= 2;
         }
 
-        public static ArrayList NaturalForm(ArrayList exprLis)
+        public static ArrayList NormalForm(ArrayList exprLis)
         {
             short indx = 0;
             
@@ -170,7 +221,7 @@ namespace ComputerV1
             }
         }
         
-        public static string[] Simplify(string[] expr)
+        public static string[] Reduce(string[] expr)
         {
             var exprLis = new ArrayList();
             var natural = new string[4,2];
@@ -179,16 +230,17 @@ namespace ComputerV1
             {
                 exprLis.Add(str);
             }
-            
             //put all the terms on the left side of the equation.
-            exprLis = NaturalForm(exprLis);
+            exprLis = NormalForm(exprLis);
             //stop exacution if  there is no equal sign on the input
             if (_dgree == -1)
                 return expr;
            //put the equation in the form  a * x^2 + b * x^1 + c * x^0 = 0 
             for (var i = 0; i < exprLis.Count; i++)
             {
-                
+                //get the term character.
+               if (exprLis[i].ToString().Contains("*"))
+                    _termChar = exprLis[i].ToString()[exprLis[i].ToString().IndexOf('*') + 1];
                 if (exprLis[i].ToString().Contains("^2"))
                 {
                     if ((natural[0, 1] == null) && (natural[0, 0] == null))
@@ -204,13 +256,9 @@ namespace ComputerV1
                         if ((natural[1, 1] == null))
                         {
                             if (i == 0)
-                            {
                                 natural[1, 0] = "+";
-                            }
                             else
-                            {
                                 natural[1, 0] = exprLis[i - 1].ToString();
-                            }
                             natural[1, 1] = exprLis[i].ToString();
                         }
                         else
@@ -221,13 +269,9 @@ namespace ComputerV1
                         if ((natural[2, 1] == null))
                         {
                             if (i == 0)
-                            {
                                 natural[2, 0] = "+";
-                            }
                             else
-                            {
                                 natural[2, 0] = exprLis[i - 1].ToString();
-                            }
                             natural[2, 1] = exprLis[i].ToString();
                         }
                         else
@@ -241,7 +285,7 @@ namespace ComputerV1
             if (_dgree < 2)
             {
                 natural[0, 0] = "+";
-                natural[0, 1] = "0*X^2";
+                natural[0, 1] = "0*" + _termChar + "^2";
             }
             
             //join the equation back into a single string before spliting it to the proper form again.
@@ -285,33 +329,39 @@ namespace ComputerV1
                 if (expr[i - 1].Contains("-"))
                     c *= -1;
             }
-            Console.WriteLine("a = {0}", a);
-            Console.WriteLine("b = {0}", b);
-            Console.WriteLine("c = {0}", c);
+            Console.WriteLine("----------");
+            Console.WriteLine("a = {0:#.###}, b = {1:#.###}, c = {2:#.###}", a, b ,c);
+            Console.WriteLine("----------");
             b2 = b * -1;
             b3 = b * b;
             ac4 = 4 * (a) * (c);
             a2 = 2 * (a);
-
+            Console.WriteLine("{3} = (-({1:#.###}) ± srt({1:#.###}^2 - 4({0:#.###})({2:#.###}))) / 2({0:#.###})", a, b, c, _termChar);
+            Console.WriteLine("{4} = ( {0:#.###} ± srt({1:#.###} - {2:#.###})) / {3:#.###}", b2, b3, ac4 >= 0 ? ac4 : ac4 * -1, a2, _termChar);
+            Console.WriteLine("{3} = ( {0:#.###} ± srt({1:#.###})) / {2:#.###}", b2, b3 - ac4, a2, _termChar);
             if (b3 - ac4 > 0)
             {
                 sqRoot = Sqrt(b3 - (ac4));
+                Console.WriteLine("{3} = ({0:#.###} ± {1:#.###}) / {2:#.###}", b2, sqRoot, a2, _termChar);
                 x1 = (b2 + sqRoot) / a2;
                 x2 = (b2 - sqRoot) / a2;
-                Console.WriteLine("----------\nDiscriminant is strictly positive, the two solutions are:\n{0:N6}\n{1:N6}", x1, x2);
+                Console.WriteLine("----------\nDiscriminant is strictly positive, the two solutions are:\n{0:#.######}\n{1:#.######}", x1, x2);
             }
             else if (b3 - ac4 < 0)
             {
                 sqRoot = Sqrt((b3 - (ac4)) * -1);
+                Console.WriteLine("{3} = ({0:#.###} ± {1:#.###} * i ) / {2:#.###}", b2, sqRoot, a2, _termChar);
+                Console.WriteLine("{3} = ({0:#.###} / {2:#.###}) ± ({1:#.###} / {2:#.###}) * i", b2, sqRoot, a2, _termChar);
                 x1 = sqRoot/a2; //(b2 + sqRoot) / a2;
                 x2 = sqRoot/a2; //(b2 - sqRoot) / a2;
-                Console.WriteLine("----------\nDiscriminant is strictly negative, the two solutions are:\n{2:N6} + {0:N6}i\n{2:N6} - {1:N6}i", x1, x2, b2/a2);
+                Console.WriteLine("----------\nDiscriminant is strictly negative, the two solutions are:\n{2:#.###} + {0:#.###}i\n{2:#.###} - {1:#.###}i", x1, x2, b2/a2);
             }
             else
             {
                 sqRoot = Sqrt(b3 - (ac4));
+                Console.WriteLine("{3} = ({0:#.###} ± {1:#.###}) / {2:#.###}", b2, sqRoot, a2, _termChar);
                 x1 = (b2 + sqRoot) / a2;
-                Console.WriteLine("----------\nDiscriminant is null, the solution is:\n{0:N6}", x1);
+                Console.WriteLine("----------\nDiscriminant is null, the solution is:\n{0:#.######}", x1);
             }
             
         }
@@ -325,7 +375,6 @@ namespace ComputerV1
                 if (expr[i].Contains("^1"))
                 {
                     TryParse(expr[i].Substring(0, expr[i].IndexOf('*')), out a);
-                    Console.WriteLine("a = {0}", a);
                     if (expr[i - 1].Contains("-"))
                     {
                         a *= -1;
@@ -333,16 +382,19 @@ namespace ComputerV1
                 }
                 if (!expr[i].Contains("^0")) continue;
                 TryParse(expr[i].Substring(0, expr[i].IndexOf('*')), out b);
-                Console.WriteLine("b = {0}", b);
                 if (expr[i - 1].Contains("-"))
                 {
                     b *= -1;
                 }
             }
+            Console.WriteLine("----------");
+            Console.WriteLine("a = {0:#.###}, b = {1:#.###}", a, b);
+            Console.WriteLine("----------");
             if (a != 0)
             {
+                Console.WriteLine("{1:#.###} / {1:#.###} * {2} = {0:#.###} / {1:#.###}", b, a, _termChar);
                 var x = b / a;
-                Console.WriteLine("----------\nthe solution is:\n{0:N6}", x);
+                Console.WriteLine("----------\nthe solution is:\n{0:#.######}", x);
             }
             else
                 Console.WriteLine("Solution is undefined.");
