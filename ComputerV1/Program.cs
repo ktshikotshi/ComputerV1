@@ -370,7 +370,7 @@ namespace ComputerV1
             {
                 sqRoot = Sqrt((b3 - (ac4)) * -1);
                 Console.WriteLine("{3} = ({0:0.###} ± {1:0.###} * i ) / {2:0.###}", b2, sqRoot, a2, _termChar);
-                Console.WriteLine("{3} = ({0:0.###} / {2:0.###}) ± ({1:0.###} / {2:0.###}) * i", b2, sqRoot, a2, _termChar);
+                Console.WriteLine("{3} = ({0:0.###} / {2:0.###}) ± ({1:0.###} / {2:0.###}) * i", b2, sqRoot * 1, a2, _termChar);
                 x1 = sqRoot/a2; //(b2 + sqRoot) / a2;
                 x2 = sqRoot/a2; //(b2 - sqRoot) / a2;
                 Console.WriteLine("----------\nDiscriminant is strictly negative, the two solutions are:\n{2:0.###} + {0:0.###}i\n{2:0.###} - {1:0.###}i", x1, x2, b2/a2);
@@ -426,7 +426,7 @@ namespace ComputerV1
         //square root function.
         public static float Sqrt(double number)
         {
-            const float precision = 0.001f;
+            const float precision = 0.0001f;
             float min = 0, result = 0;
             var max = Convert.ToSingle(number);
             
