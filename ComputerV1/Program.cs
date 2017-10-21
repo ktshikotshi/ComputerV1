@@ -149,9 +149,9 @@ namespace ComputerV1
             }
             if (indx == exprLis.Count)
             {
-                _dgreeStatus = false;
-                Console.WriteLine("The input is not an equation");
-                return exprLis;
+                Console.WriteLine("Added missing rhs(*= 0)");
+                exprLis.Add("=");
+                exprLis.Add("0");
             }
             if ((exprLis[indx + 1].ToString() == ""))
             {
