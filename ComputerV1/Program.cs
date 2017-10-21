@@ -54,15 +54,11 @@ namespace ComputerV1
                             break;
                     }
                 }
-                else if (_dgree > 2)
-                {
+                else
                     Console.WriteLine("The polynomial degree is stricly greater than 2, I can't solve.");
-                }
             }
             else
-            {
                 Console.WriteLine("Arguments are not valid.");
-            }
 
         }
 
@@ -248,7 +244,7 @@ namespace ComputerV1
             {
                 //get the term character.
                if (exprLis[i].ToString().Contains("*"))
-                    _termChar = exprLis[i].ToString()[exprLis[i].ToString().IndexOf('*') + 1];
+                    _termChar = Char.IsLetter(exprLis[i].ToString()[exprLis[i].ToString().IndexOf('*') + 1])? exprLis[i].ToString()[exprLis[i].ToString().IndexOf('*') + 1] : 'X' ;
                 if (exprLis[i].ToString().Contains("^2"))
                 {
                     if ((natural[0, 1] == null) && (natural[0, 0] == null))
@@ -411,11 +407,14 @@ namespace ComputerV1
             }
             Console.WriteLine("----------");
             Console.WriteLine("a = {0:0.###}, b = {1:0.###}", a, b);
+            Console.WriteLine("{0:0.###}*{2}^1 + ({1:0.###}) = 0", a, b, _termChar);
+            b *= -1;
+            Console.WriteLine("{0:0.###}*{2}^1 = {1:0.###}", a, b, _termChar);
             Console.WriteLine("----------");
             if (a != 0)
             {
                 Console.WriteLine("({1:0.###} / {1:0.###}) * {2} = {0:0.###} / {1:0.###}", b, a, _termChar);
-                var x = b / a;
+                var x = b/ a;
                 Console.WriteLine("----------\nthe solution is:\n{0:0.###}", x);
             }
             else
@@ -426,7 +425,7 @@ namespace ComputerV1
         //square root function.
         public static float Sqrt(double number)
         {
-            const float precision = 0.01f;
+            const float precision = 0.001f;
             float min = 0, result = 0;
             var max = Convert.ToSingle(number);
             
