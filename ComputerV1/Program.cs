@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using  System.Text.RegularExpressions;
+using static System.Char;
 using static System.Double;
 using static System.Int32;
 
@@ -55,6 +56,10 @@ namespace ComputerV1
                 }
                 else if (_dgree > 2)
                     Console.WriteLine("The polynomial degree is stricly greater than 2, I can't solve.");
+                else
+                {
+                    Console.WriteLine("Expression is invalid.");                   
+                }
             }
             else
                 Console.WriteLine("Arguments are not valid.");
@@ -70,7 +75,6 @@ namespace ComputerV1
         public static string[] ManageNaturalForm(string[] expr)
         {
             char ch = 'X';
-            double digit = 0;
             int elements = 0;
             ArrayList exprLis = new ArrayList();
 
@@ -79,12 +83,13 @@ namespace ComputerV1
                 exprLis.Add(str);
                 elements++;
             }
-            for (int i = 0; i < exprLis.Count; i++)
+            for (var i = 0; i < exprLis.Count; i++)
             {
                 if (exprLis[i].ToString().Contains("*"))
                     ch = exprLis[i].ToString()[exprLis[i].ToString().IndexOf('*') + 1];
                 if ((exprLis[i].ToString().Contains("*") && !(exprLis[i].ToString().Contains("^"))))
                     exprLis[i] = exprLis[i] + "^1";
+                double digit = 0;
                 if (TryParse(exprLis[i].ToString(), out digit))
                 {
                     exprLis[i] = exprLis[i].ToString() + "*" + _termChar + "^0";
@@ -93,10 +98,10 @@ namespace ComputerV1
                     || exprLis[i].ToString().Contains("*"))
                 {
                     ch = exprLis[i].ToString()[0];
-                    if ((exprLis[i].ToString().Length == 1 && Char.IsLetter(ch)))
+                    if ((exprLis[i].ToString().Length == 1 && IsLetter(ch)))
                         exprLis[i] = ch + "^1";
                     
-                    if (Char.IsLetter(ch) && (ch == exprLis[i].ToString()[exprLis[i].ToString().IndexOf('*') + 1]))
+                    if (IsLetter(ch) && (ch == exprLis[i].ToString()[exprLis[i].ToString().IndexOf('*') + 1]))
                     {
                         exprLis.Insert(i, "1" + (exprLis[i].ToString().Contains("*") == true ? "" : "*" ) + exprLis[i].ToString());
                         exprLis.RemoveAt(i + 1);
@@ -104,7 +109,7 @@ namespace ComputerV1
                     
                 }   
             }
-            string[] newExpr = new string[elements];
+            var newExpr = new string[elements];
             int count = 0;
             foreach (var el in exprLis)
             {
@@ -194,14 +199,14 @@ namespace ComputerV1
         {
             double val1 = 0;
             double val2 = 0;
-            int v1loc = arr[arrLoc, 1].IndexOf('^');
-            int v2loc = exprLis[i].ToString().IndexOf('^');
+            int v1Loc = arr[arrLoc, 1].IndexOf('^');
+            int v2Loc = exprLis[i].ToString().IndexOf('^');
             //each term should have the following pettern
-            string rgxPar = @"^\d+\*[a-z]\^\d$";
+            var rgxPar = @"^\d+\*[a-z]\^\d$";
 
             //check if the format of each term matches the format required for calculation
-            if ((!TryParse(arr[arrLoc, 1].Substring(0, v1loc >= 2 && Regex.IsMatch(arr[arrLoc, 1].ToString(),rgxPar, RegexOptions.IgnoreCase) ? v1loc - 2 : 0), out val1) ||
-                !TryParse(exprLis[i].ToString().Substring(0, v2loc >= 2 && Regex.IsMatch(arr[arrLoc, 1].ToString(), rgxPar, RegexOptions.IgnoreCase) ? v2loc - 2 : 0), out val2)))
+            if ((!TryParse(arr[arrLoc, 1].Substring(0, v1Loc >= 2 && Regex.IsMatch(arr[arrLoc, 1].ToString(),rgxPar, RegexOptions.IgnoreCase) ? v1Loc - 2 : 0), out val1) ||
+                !TryParse(exprLis[i].ToString().Substring(0, v2Loc >= 2 && Regex.IsMatch(arr[arrLoc, 1].ToString(), rgxPar, RegexOptions.IgnoreCase) ? v2Loc - 2 : 0), out val2)))
             {
                 //stop execution, if the term is the wrong format
                 Console.WriteLine("format for term {0} is not correct, please fix it and try again.", exprLis[i].ToString());
@@ -241,24 +246,41 @@ namespace ComputerV1
             //stop exacution if  there is no equal sign on the input
             if (_dgreeStatus == false)
                 return expr;
-           //put the equation in the form  + a * x^2 + b * x^1 + c * x^0 = 0 
+            
+            var rgxPar = @"^\d+\*[a-z]\^\d$";
+            //put the equation in the form  + a * x^2 + b * x^1 + c * x^0 = 0 
             for (var i = 0; i < exprLis.Count; i++)
             {
-                //get the term character.
-               if (exprLis[i].ToString().Contains("*"))
-                    _termChar = Char.IsLetter(exprLis[i].ToString()[exprLis[i].ToString().IndexOf('*') + 1])? exprLis[i].ToString()[exprLis[i].ToString().IndexOf('*') + 1] : 'X' ;
-                if (exprLis[i].ToString().Contains("^2"))
-                {
-                    if ((natural[0, 1] == null) && (natural[0, 0] == null))
+                
+                    //get the term character.
+                    if (exprLis[i].ToString().Contains("*"))
+                        _termChar = IsLetter(exprLis[i].ToString()[exprLis[i].ToString().IndexOf('*') + 1])
+                            ? exprLis[i].ToString()[exprLis[i].ToString().IndexOf('*') + 1]
+                            : 'X';
+                    if (exprLis[i].ToString().Contains("^2"))
                     {
-                        natural[0, 0] = exprLis[i - 1].ToString();
-                        natural[0, 1] = exprLis[i].ToString();
+                        if (!(Regex.IsMatch(exprLis[i].ToString(), rgxPar, RegexOptions.IgnoreCase)))
+                        {
+                            Console.WriteLine("format for term {0} is not correct, please fix it and try again.", exprLis[i].ToString());
+                            _dgreeStatus = false;
+                            return expr;
+                        }
+                        if ((natural[0, 1] == null) && (natural[0, 0] == null))
+                        {
+                            natural[0, 0] = exprLis[i - 1].ToString();
+                            natural[0, 1] = exprLis[i].ToString();
+                        }
+                        else
+                            MergeDuplicates(ref natural, exprLis, i, 0);
                     }
-                    else
-                        MergeDuplicates(ref natural, exprLis, i, 0);
-                }
-                 if (exprLis[i].ToString().Contains("^1"))
+                    if (exprLis[i].ToString().Contains("^1"))
                     {
+                        if (!(Regex.IsMatch(exprLis[i].ToString(), rgxPar, RegexOptions.IgnoreCase)))
+                        {
+                            Console.WriteLine("format for term {0} is not correct, please fix it and try again.", exprLis[i].ToString());
+                            _dgreeStatus = false;
+                            return expr;
+                        }
                         if ((natural[1, 1] == null))
                         {
                             if (i == 0)
@@ -270,8 +292,14 @@ namespace ComputerV1
                         else
                             MergeDuplicates(ref natural, exprLis, i, 1);
                     }
-                     if (exprLis[i].ToString().Contains("^0"))
+                    if (exprLis[i].ToString().Contains("^0"))
                     {
+                        if (!(Regex.IsMatch(exprLis[i].ToString(), rgxPar, RegexOptions.IgnoreCase)))
+                        {
+                            Console.WriteLine("format for term {0} is not correct, please fix it and try again.", exprLis[i].ToString());
+                            _dgreeStatus = false;
+                            return expr;
+                        }
                         if ((natural[2, 1] == null))
                         {
                             if (i == 0)
@@ -282,10 +310,11 @@ namespace ComputerV1
                         }
                         else
                             MergeDuplicates(ref natural, exprLis, i, 2);
-                }
-                if (!exprLis[i].ToString().Contains("=")) continue;
-                natural[3, 0] = "=";
-                natural[3, 1] = exprLis[i + 1].ToString();
+                    }
+                    if (!exprLis[i].ToString().Contains("=")) continue;
+                    natural[3, 0] = "=";
+                    natural[3, 1] = exprLis[i + 1].ToString();
+                
             }
             //add a second degree term with a coefficiant of 0 to the equation, if degree is less than 2.
             if (_dgree < 2)
@@ -293,11 +322,13 @@ namespace ComputerV1
                 natural[0, 0] = "+";
                 natural[0, 1] = "0*" + _termChar + "^2";
             }
+            //add first degree a term with coefficient of 0, if missing
             if (natural[1, 1] == null)
             {
                 natural[1, 0] = "+";
                 natural[1, 1] = "0*" + _termChar + "^1";
             }
+            //add the constant term with the value of 0, if it is missing
             if (natural[2, 1] == null)
             {
                 natural[2, 0] = "+";
