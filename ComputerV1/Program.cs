@@ -12,7 +12,8 @@ namespace ComputerV1
         private static int _dgree = 0;
         private static bool _dgreeStatus;
         private static char _termChar = 'X';
-        
+        const string RgxPar = @"^(\d+\,)?(\d+\.)?\d+\*[a-z]\^\d$";
+
         public static void Main(string[] args)
         {
             if (!(args.Length >= 2))
@@ -68,7 +69,7 @@ namespace ComputerV1
 
         public static string[] Split(string str)
         {
-            var s = str.Replace(".", ",");
+            var s = str;//.Replace(".", ",");
             return (Regex.Split(s.Replace(" ", ""), @"(\-)|(\+)|(\=)"));
         }
 
@@ -201,12 +202,10 @@ namespace ComputerV1
             double val2 = 0;
             int v1Loc = arr[arrLoc, 1].IndexOf('^');
             int v2Loc = exprLis[i].ToString().IndexOf('^');
-            //each term should have the following pettern
-            var rgxPar = @"^\d+\*[a-z]\^\d$";
 
             //check if the format of each term matches the format required for calculation
-            if ((!TryParse(arr[arrLoc, 1].Substring(0, v1Loc >= 2 && Regex.IsMatch(arr[arrLoc, 1].ToString(),rgxPar, RegexOptions.IgnoreCase) ? v1Loc - 2 : 0), out val1) ||
-                !TryParse(exprLis[i].ToString().Substring(0, v2Loc >= 2 && Regex.IsMatch(arr[arrLoc, 1].ToString(), rgxPar, RegexOptions.IgnoreCase) ? v2Loc - 2 : 0), out val2)))
+            if ((!TryParse(arr[arrLoc, 1].Substring(0, v1Loc >= 2 && Regex.IsMatch(arr[arrLoc, 1].ToString(),RgxPar, RegexOptions.IgnoreCase) ? v1Loc - 2 : 0), out val1) ||
+                !TryParse(exprLis[i].ToString().Substring(0, v2Loc >= 2 && Regex.IsMatch(arr[arrLoc, 1].ToString(), RgxPar, RegexOptions.IgnoreCase) ? v2Loc - 2 : 0), out val2)))
             {
                 //stop execution, if the term is the wrong format
                 Console.WriteLine("format for term {0} is not correct, please fix it and try again.", exprLis[i].ToString());
@@ -247,7 +246,7 @@ namespace ComputerV1
             if (_dgreeStatus == false)
                 return expr;
             
-            var rgxPar = @"^\d+\*[a-z]\^\d$";
+            //const string rgxPar  = @"^(\d+\,)?\d+\*[a-zA-Z]?\^\d$";
             //put the equation in the form  + a * x^2 + b * x^1 + c * x^0 = 0 
             for (var i = 0; i < exprLis.Count; i++)
             {
@@ -259,7 +258,7 @@ namespace ComputerV1
                             : 'X';
                     if (exprLis[i].ToString().Contains("^2"))
                     {
-                        if (!(Regex.IsMatch(exprLis[i].ToString(), rgxPar, RegexOptions.IgnoreCase)))
+                        if (!(Regex.IsMatch(exprLis[i].ToString(), RgxPar, RegexOptions.IgnoreCase)))
                         {
                             Console.WriteLine("format for term {0} is not correct, please fix it and try again.", exprLis[i].ToString());
                             _dgreeStatus = false;
@@ -275,7 +274,7 @@ namespace ComputerV1
                     }
                     if (exprLis[i].ToString().Contains("^1"))
                     {
-                        if (!(Regex.IsMatch(exprLis[i].ToString(), rgxPar, RegexOptions.IgnoreCase)))
+                        if (!(Regex.IsMatch(exprLis[i].ToString(), RgxPar, RegexOptions.IgnoreCase)))
                         {
                             Console.WriteLine("format for term {0} is not correct, please fix it and try again.", exprLis[i].ToString());
                             _dgreeStatus = false;
@@ -294,7 +293,7 @@ namespace ComputerV1
                     }
                     if (exprLis[i].ToString().Contains("^0"))
                     {
-                        if (!(Regex.IsMatch(exprLis[i].ToString(), rgxPar, RegexOptions.IgnoreCase)))
+                        if (!(Regex.IsMatch(exprLis[i].ToString(), RgxPar, RegexOptions.IgnoreCase)))
                         {
                             Console.WriteLine("format for term {0} is not correct, please fix it and try again.", exprLis[i].ToString());
                             _dgreeStatus = false;
