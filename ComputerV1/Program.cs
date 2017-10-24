@@ -12,7 +12,7 @@ namespace ComputerV1
         private static int _dgree = 0;
         private static bool _dgreeStatus;
         private static char _termChar = 'X';
-        const string RgxPar = @"^(\d+\,)?(\d+\.)?\d+\*[a-z]\^\d$";
+        const string RgxPar = @"^(\d+\,)?\d+\*[a-z]\^\d$";
 
         public static void Main(string[] args)
         {
@@ -75,51 +75,25 @@ namespace ComputerV1
 
         public static string[] ManageNaturalForm(string[] expr)
         {
-            char ch = 'X';
-            int elements = 0;
-            ArrayList exprLis = new ArrayList();
-
-            foreach (var str in expr)
+            const string pow1 = @"(\d+)?(\*)?[A-Za-z]";
+            const string pow2 = @"(\d+)?(\*)?[A-Za-z]\^[2]";
+            const string pow0 = @"(\d+)((\*)?[A-Za-z]\^[0])?";
+            var ch = 'X';
+            
+            for (var i = 0; i < expr.Length; i++)
             {
-                exprLis.Add(str);
-                elements++;
+                if (Regex.IsMatch(expr[i], pow2, RegexOptions.IgnoreCase))
+                    expr[i] = (Regex.IsMatch(expr[i], @"^(\d+\,)?\d+", RegexOptions.IgnoreCase)? 
+                        Regex.Match(expr[i], @"^(\d+\,)?\d+", RegexOptions.IgnoreCase).ToString(): "1")  + "*"+ ch +"^2";
+                else if (Regex.IsMatch(expr[i], pow1, RegexOptions.IgnoreCase))
+                    expr[i] = (Regex.IsMatch(expr[i], @"^(\d+\,)?\d+", RegexOptions.IgnoreCase)? 
+                        Regex.Match(expr[i], @"^(\d+\,)?\d+", RegexOptions.IgnoreCase).ToString(): "1" ) + "*"+ ch +"^1";
+                else if (Regex.IsMatch(expr[i], pow0, RegexOptions.IgnoreCase))
+                    expr[i] = Regex.Match(expr[i], @"^(\d+\,)?\d+", RegexOptions.IgnoreCase) + "*"+ ch +"^0";
             }
-            for (var i = 0; i < exprLis.Count; i++)
-            {
-                if (exprLis[i].ToString().Contains("*"))
-                    ch = exprLis[i].ToString()[exprLis[i].ToString().IndexOf('*') + 1];
-                if ((exprLis[i].ToString().Contains("*") && !(exprLis[i].ToString().Contains("^"))))
-                    exprLis[i] = exprLis[i] + "^1";
-                double digit = 0;
-                if (TryParse(exprLis[i].ToString(), out digit))
-                {
-                    exprLis[i] = exprLis[i].ToString() + "*" + _termChar + "^0";
-                }
-                else if ((exprLis[i].ToString().Length == 1) || (exprLis[i].ToString().Length == 3 && exprLis[i].ToString().Contains("^2"))
-                    || exprLis[i].ToString().Contains("*"))
-                {
-                    ch = exprLis[i].ToString()[0];
-                    if ((exprLis[i].ToString().Length == 1 && IsLetter(ch)))
-                        exprLis[i] = ch + "^1";
-                    
-                    if (IsLetter(ch) && (ch == exprLis[i].ToString()[exprLis[i].ToString().IndexOf('*') + 1]))
-                    {
-                        exprLis.Insert(i, "1" + (exprLis[i].ToString().Contains("*") == true ? "" : "*" ) + exprLis[i].ToString());
-                        exprLis.RemoveAt(i + 1);
-                    }
-                    
-                }   
-            }
-            var newExpr = new string[elements];
-            int count = 0;
-            foreach (var el in exprLis)
-            {
-                newExpr[count] = el.ToString();
-                count++;
-            }
-            return (newExpr);
+            return expr;
         }
-
+        
         public static bool GetDegree(string[] expression)
         {
             var degree = 0;
