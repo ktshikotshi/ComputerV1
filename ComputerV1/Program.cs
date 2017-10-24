@@ -69,7 +69,7 @@ namespace ComputerV1
 
         public static string[] Split(string str)
         {
-            var s = str;//.Replace(".", ",");
+            var s = str.Replace(".", ",");
             return (Regex.Split(s.Replace(" ", ""), @"(\-)|(\+)|(\=)"));
         }
 
