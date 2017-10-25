@@ -30,7 +30,12 @@ namespace ComputerV1
                 //check to see if the equation is in the natural form
                 expr = ManageNaturalForm(expr);
                 _dgreeStatus = GetDegree(expr);
-                expr = Reduce(expr);
+                expr = ReduceRgx(expr);
+                if (_dgree > 2)
+                {
+                    Console.WriteLine("The polynomial degree is stricly greater than 2, I can't solve.");
+                    return ;
+                }
                 GetDegree(expr);
                 if (_dgreeStatus)
                 {
@@ -55,8 +60,6 @@ namespace ComputerV1
                             break;
                     }
                 }
-                else if (_dgree > 2)
-                    Console.WriteLine("The polynomial degree is stricly greater than 2, I can't solve.");
                 else
                 {
                     Console.WriteLine("Expression is invalid.");                   
@@ -75,9 +78,9 @@ namespace ComputerV1
 
         public static string[] ManageNaturalForm(string[] expr)
         {
-            const string pow1 = @"(\d+)?(\*)?[A-Za-z]";
-            const string pow2 = @"(\d+)?(\*)?[A-Za-z]\^[2]";
-            const string pow0 = @"(\d+)((\*)?[A-Za-z]\^[0])?";
+            const string pow1 = @"^(\d+)?(\*)?[A-Za-z](\^[1])?$";
+            const string pow2 = @"^(\d+)?(\*)?[A-Za-z]\^[2]$";
+            const string pow0 = @"^(\d+)((\*)?[A-Za-z]\^[0])?$";
             var ch = 'X';
             
             for (var i = 0; i < expr.Length; i++)
@@ -93,7 +96,7 @@ namespace ComputerV1
             }
             return expr;
         }
-        
+
         public static bool GetDegree(string[] expression)
         {
             var degree = 0;
@@ -116,23 +119,23 @@ namespace ComputerV1
             _dgree = degree;
             return degree <= 2;
         }
-
-        public static ArrayList NormalForm(ArrayList exprLis)
+        public static string[] NormRgx(string[] expr)
         {
+            var exprLis = new ArrayList();
+            var natural = new string[4, 2];
+
+            foreach (var str in expr)
+            {
+                exprLis.Add(str);
+            }
             short indx = 0;
-            
+
             foreach (var str in exprLis)
             {
                 if (str.ToString() != "=")
                     indx++;
                 else
                     break;
-            }
-            if (indx == exprLis.Count)
-            {
-                Console.WriteLine("Added missing rhs(*= 0)");
-                exprLis.Add("=");
-                exprLis.Add("0");
             }
             if ((exprLis[indx + 1].ToString() == ""))
             {
@@ -150,7 +153,6 @@ namespace ComputerV1
             if (!(exprLis[0].ToString().Contains("-")) && !(exprLis[0].ToString().Contains("+")))
                 exprLis.Insert(0, "+");
             //put everything in the natural form
-            if (exprLis[indx + 1].ToString() == "0") return exprLis;
             if (!(exprLis[indx + 1].ToString().Contains("-")) && !(exprLis[indx + 1].ToString().Contains("+")))
                 exprLis.Insert(indx + 1, "+");
             for (var i = indx + 1; i < exprLis.Count; i++)
@@ -167,7 +169,8 @@ namespace ComputerV1
             exprLis.Remove("=");
             exprLis.Add("=");
             exprLis.Add("0");
-            return exprLis;
+
+            return ((string[])exprLis.ToArray(typeof(string)));
         }
 
         public static void MergeDuplicates(ref string[,] arr, ArrayList exprLis, int i, int arrLoc)
@@ -204,125 +207,47 @@ namespace ComputerV1
                 arr[arrLoc, 1] = (val1 + val2).ToString() + Regex.Match(arr[arrLoc, 1].ToString(), @"\*[a-z]\^\d$", RegexOptions.IgnoreCase);
             }
         }
-        
-        public static string[] Reduce(string[] expr)
+        public static double getVal(string s,string s1)
         {
-            var exprLis = new ArrayList();
-            var natural = new string[4,2];
-            
-            foreach (var str in expr)
+            double var = 0;
+            var tmp = Convert.ToDouble( s1 + Regex.Match(s, @"^(\d+\,)?\d+", RegexOptions.IgnoreCase));
+            var = tmp;
+            return var;
+        }
+        public static string[] ReduceRgx(string[] expr)
+        {
+            var natural = new string[8];
+            double[] coeff = { 0, 0, 0};
+            int eq = 0;
+            expr = NormRgx(expr);
+            for (var i = 0; i < expr.Length; i++)
             {
-                exprLis.Add(str);
-            }
-            //put all the terms on the left side of the equation.
-            exprLis = NormalForm(exprLis);
-            //stop exacution if  there is no equal sign on the input
-            if (_dgreeStatus == false)
-                return expr;
-            
-            //const string rgxPar  = @"^(\d+\,)?\d+\*[a-zA-Z]?\^\d$";
-            //put the equation in the form  + a * x^2 + b * x^1 + c * x^0 = 0 
-            for (var i = 0; i < exprLis.Count; i++)
-            {
-                
-                    //get the term character.
-                    if (exprLis[i].ToString().Contains("*"))
-                        _termChar = IsLetter(exprLis[i].ToString()[exprLis[i].ToString().IndexOf('*') + 1])
-                            ? exprLis[i].ToString()[exprLis[i].ToString().IndexOf('*') + 1]
-                            : 'X';
-                    if (exprLis[i].ToString().Contains("^2"))
+                if (expr[i] == "=")
+                    eq = i;
+                if (expr[i].Contains("^")) {
+                    if (Regex.IsMatch(expr[i], RgxPar, RegexOptions.IgnoreCase))
                     {
-                        if (!(Regex.IsMatch(exprLis[i].ToString(), RgxPar, RegexOptions.IgnoreCase)))
-                        {
-                            Console.WriteLine("format for term {0} is not correct, please fix it and try again.", exprLis[i].ToString());
-                            _dgreeStatus = false;
-                            return expr;
-                        }
-                        if ((natural[0, 1] == null) && (natural[0, 0] == null))
-                        {
-                            natural[0, 0] = exprLis[i - 1].ToString();
-                            natural[0, 1] = exprLis[i].ToString();
-                        }
-                        else
-                            MergeDuplicates(ref natural, exprLis, i, 0);
+                        _termChar = expr[i][expr[i].IndexOf('*') + 1];
+                        if (expr[i].Contains("^0"))
+                            coeff[2] += getVal(expr[i], i > 0 ? (expr[i - 1] == "-"? "-": "+") : "+");
+                        else if (expr[i].Contains("^1")) { 
+                            coeff[1] += getVal(expr[i], i > 0 ? (expr[i - 1] == "-" ? "-" : "+") : "+");}
+                        else if (expr[i].Contains("^2"))
+                            coeff[0] += getVal(expr[i], i > 0 ? (expr[i - 1] == "-" ? "-" : "+") : "+");
                     }
-                    if (exprLis[i].ToString().Contains("^1"))
-                    {
-                        if (!(Regex.IsMatch(exprLis[i].ToString(), RgxPar, RegexOptions.IgnoreCase)))
-                        {
-                            Console.WriteLine("format for term {0} is not correct, please fix it and try again.", exprLis[i].ToString());
-                            _dgreeStatus = false;
-                            return expr;
-                        }
-                        if ((natural[1, 1] == null))
-                        {
-                            if (i == 0)
-                                natural[1, 0] = "+";
-                            else
-                                natural[1, 0] = exprLis[i - 1].ToString();
-                            natural[1, 1] = exprLis[i].ToString();
-                        }
-                        else
-                            MergeDuplicates(ref natural, exprLis, i, 1);
-                    }
-                    if (exprLis[i].ToString().Contains("^0"))
-                    {
-                        if (!(Regex.IsMatch(exprLis[i].ToString(), RgxPar, RegexOptions.IgnoreCase)))
-                        {
-                            Console.WriteLine("format for term {0} is not correct, please fix it and try again.", exprLis[i].ToString());
-                            _dgreeStatus = false;
-                            return expr;
-                        }
-                        if ((natural[2, 1] == null))
-                        {
-                            if (i == 0)
-                                natural[2, 0] = "+";
-                            else
-                                natural[2, 0] = exprLis[i - 1].ToString();
-                            natural[2, 1] = exprLis[i].ToString();
-                        }
-                        else
-                            MergeDuplicates(ref natural, exprLis, i, 2);
-                    }
-                    if (!exprLis[i].ToString().Contains("=")) continue;
-                    natural[3, 0] = "=";
-                    natural[3, 1] = exprLis[i + 1].ToString();
-                
+                }
             }
-            //add a second degree term with a coefficiant of 0 to the equation, if degree is less than 2.
-            if (_dgree < 2)
-            {
-                natural[0, 0] = "+";
-                natural[0, 1] = "0*" + _termChar + "^2";
-            }
-            //add first degree a term with coefficient of 0, if missing
-            if (natural[1, 1] == null)
-            {
-                natural[1, 0] = "+";
-                natural[1, 1] = "0*" + _termChar + "^1";
-            }
-            //add the constant term with the value of 0, if it is missing
-            if (natural[2, 1] == null)
-            {
-                natural[2, 0] = "+";
-                natural[2, 1] = "0*" + _termChar + "^0";
-            }
-            //join the equation back into a single string before spliting it to the proper form again.
-            var stmp = new string[4];
+            natural[0] = coeff[0] >= 0 ? "+" : "-";
+            natural[1] = (coeff[0] > 0?coeff[0]: coeff[0] * -1) + "*" + _termChar + "^2";
+            natural[2] = coeff[1] >= 0 ? "+" : "-";
+            natural[3] = (coeff[1] > 0 ? coeff[1] : coeff[1] * -1) + "*" + _termChar + "^1";
+            natural[4] = coeff[2] >= 0 ? "+" : "-";
+            natural[5] = (coeff[2] > 0 ? coeff[2] : coeff[2] * -1) + "*" + _termChar + "^0";
+            natural[6] = "=";
+            natural[7] = "0";
 
-            for (var i = 0; i < 4; i++)
-            {
-                if (natural[i, 1] != null)
-                {
-                    stmp[i] = natural[i, 0] + natural[i, 1];
-                }
-                else
-                {
-                    stmp[i] = "";
-                }
-            }
-            //return the equation in the natural form.
-            return (Split(string.Join("", stmp)));
+            Console.WriteLine(String.Join(" ",expr));
+            return (natural);
         }
         
         //use the quadratic equation for equations with a degree of 2.
@@ -427,7 +352,6 @@ namespace ComputerV1
                 Console.WriteLine("Solution is undefined.");
             
         }
-        
         //square root function.
         public static float Sqrt(double number)
         {
