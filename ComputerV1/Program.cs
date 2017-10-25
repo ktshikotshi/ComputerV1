@@ -36,7 +36,6 @@ namespace ComputerV1
                     Console.WriteLine("The polynomial degree is stricly greater than 2, I can't solve.");
                     return ;
                 }
-                GetDegree(expr);
                 if (_dgreeStatus)
                 {
                         if (_dgree > -1)
@@ -62,7 +61,7 @@ namespace ComputerV1
                 }
                 else
                 {
-                    Console.WriteLine("Expression is invalid.");                   
+                    Console.WriteLine("Equation is invalid.");                   
                 }
             }
             else
@@ -137,18 +136,25 @@ namespace ComputerV1
                 else
                     break;
             }
-            if ((exprLis[indx + 1].ToString() == ""))
+
+            if (indx == exprLis.Count)
             {
-                exprLis.Remove("");
-                indx = 0;
-                foreach (var str in exprLis)
-                {
-                    if (str.ToString() != "=")
-                        indx++;
-                    else
-                        break;
-                }
+                _dgreeStatus = false;
+                return expr;
             }
+            if ((exprLis[indx + 1].ToString() == ""))
+                {
+                    exprLis.Remove("");
+                    indx = 0;
+                    foreach (var str in exprLis)
+                    {
+                        if (str.ToString() != "=")
+                            indx++;
+                        else
+                            break;
+                    }
+                }
+            
             //make sure the a sign on the first term.
             if (!(exprLis[0].ToString().Contains("-")) && !(exprLis[0].ToString().Contains("+")))
                 exprLis.Insert(0, "+");
@@ -220,6 +226,8 @@ namespace ComputerV1
             double[] coeff = { 0, 0, 0};
             int eq = 0;
             expr = NormRgx(expr);
+            if (_dgreeStatus == false)
+                return expr;
             for (var i = 0; i < expr.Length; i++)
             {
                 if (expr[i] == "=")
@@ -229,11 +237,17 @@ namespace ComputerV1
                     {
                         _termChar = expr[i][expr[i].IndexOf('*') + 1];
                         if (expr[i].Contains("^0"))
-                            coeff[2] += getVal(expr[i], i > 0 ? (expr[i - 1] == "-"? "-": "+") : "+");
-                        else if (expr[i].Contains("^1")) { 
-                            coeff[1] += getVal(expr[i], i > 0 ? (expr[i - 1] == "-" ? "-" : "+") : "+");}
+                            coeff[2] += getVal(expr[i], i > 0 ? (expr[i - 1] == "-" ? "-" : "+") : "+");
+                        else if (expr[i].Contains("^1")) {
+                            coeff[1] += getVal(expr[i], i > 0 ? (expr[i - 1] == "-" ? "-" : "+") : "+"); }
                         else if (expr[i].Contains("^2"))
                             coeff[0] += getVal(expr[i], i > 0 ? (expr[i - 1] == "-" ? "-" : "+") : "+");
+                    }
+                    else
+                    {
+                        _dgreeStatus = false;
+                        Console.WriteLine("the term {0} is not valid", expr[i]);
+                        return (natural);
                     }
                 }
             }
@@ -245,8 +259,6 @@ namespace ComputerV1
             natural[5] = (coeff[2] > 0 ? coeff[2] : coeff[2] * -1) + "*" + _termChar + "^0";
             natural[6] = "=";
             natural[7] = "0";
-
-            Console.WriteLine(String.Join(" ",expr));
             return (natural);
         }
         
@@ -294,7 +306,7 @@ namespace ComputerV1
                 Console.WriteLine("{3} = ({0:0.###} ± {1:0.###}) / {2:0.###}", b2, sqRoot, a2, _termChar);
                 x1 = (b2 + sqRoot) / a2;
                 x2 = (b2 - sqRoot) / a2;
-                Console.WriteLine("----------\nDiscriminant is strictly positive, the two solutions are:\n{0:0.###}\n{1:0.###}", x1, x2);
+                Console.WriteLine("----------\nDiscriminant is strictly positive, the two solutions are:\n{0}\n{1}", FractionView((b2 + sqRoot), a2), FractionView((b2 - sqRoot), a2));
             }
             else if (b3 - ac4 < 0)
             {
@@ -303,14 +315,14 @@ namespace ComputerV1
                 Console.WriteLine("{3} = ({0:0.###} / {2:0.###}) ± ({1:0.###} / {2:0.###}) * i", b2, sqRoot, a2, _termChar);
                 x1 = sqRoot/a2; 
                 x2 = sqRoot/a2;
-                Console.WriteLine("----------\nDiscriminant is strictly negative, the two solutions are:\n{2:0.###} + {0:0.###}i\n{2:0.###} - {1:0.###}i", x1, x2, b2/a2);
+                Console.WriteLine("----------\nDiscriminant is strictly negative, the two solutions are:\n{0} + {1} * i\n{0} - {1} * i", FractionView(b2,a2), FractionView(sqRoot, a2));
             }
             else
             {
                 sqRoot = Sqrt(b3 - (ac4));
                 Console.WriteLine("{3} = ({0:0.###} ± {1:0.###}) / {2:0.###}", b2, sqRoot, a2, _termChar);
                 x1 = (b2 + sqRoot) / a2;
-                Console.WriteLine("----------\nDiscriminant is null, the solution is:\n{0:0.###}", x1);
+                Console.WriteLine("----------\nDiscriminant is null, the solution is:\n{0}", FractionView((b2+sqRoot), a2));
             }
             
         }
@@ -345,13 +357,34 @@ namespace ComputerV1
             if (a != 0)
             {
                 Console.WriteLine("({1:0.###} / {1:0.###}) * {2} = {0:0.###} / {1:0.###}", b, a, _termChar);
-                var x = b/ a;
-                Console.WriteLine("----------\nthe solution is:\n{0:0.###}", x);
+                //var x = b/ a;
+                Console.WriteLine("----------\nthe solution is:\n{0:0.###}", FractionView(b, a));
+                //Console.WriteLine(FractionView(12, 18));
             }
             else
                 Console.WriteLine("Solution is undefined.");
             
         }
+
+        //find lowest common denominator
+        public static string FractionView(double a,  double b)
+        {
+                for (var i = b; i > 0; i--)
+                {
+                    if (b % i == 0 && a % i == 0)
+                    {
+                        a /= i; b /= i;
+                    }
+                }
+                if (a % 1 == 0 && b % 1 == 0)
+            {
+                if (a % b == 0) {return (a / b).ToString("0.###");}
+                else if ((a  >= 0 && b >= 0) || (a < 0 && b < 0)) {return (a >= 0 ? a : a * -1) + "/" + (b >= 0 ? b : b * -1);}
+                else {return "-" + (a >= 0 ? a : a * -1) + "/" + (b >= 0 ? b : b * -1);}
+                }
+            return (a / b).ToString("0.###");
+        }
+
         //square root function.
         public static float Sqrt(double number)
         {
