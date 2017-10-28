@@ -54,9 +54,12 @@ namespace ComputerV1
                         case 1:
                             BinomialSolve(expr);
                             break;
-                        default:
-                            Console.WriteLine("The polynomial degree is stricly less than 1, I can't solve.");
+                        case 0:
+                            monomialtypes(expr);
                             break;
+                        default:
+                            Console.WriteLine("Please review your input and try again");
+                            break ;
                     }
                 }
                 else
@@ -66,7 +69,6 @@ namespace ComputerV1
             }
             else
                 Console.WriteLine("Arguments are not valid.");
-
         }
 
         public static string[] Split(string str)
@@ -365,6 +367,19 @@ namespace ComputerV1
                 Console.WriteLine("Solution is undefined.");
             
         }
+        public static void monomialtypes(string[] expr)
+        {
+            double a = 0;
+            for (var i = 0; i < expr.Length; i++)
+            {
+                if (!expr[i].Contains("^0")) continue;
+                TryParse(expr[i].Substring(0, expr[i].IndexOf('*')), out a);
+            }
+            if (a == 0)
+                Console.WriteLine("All real numbers are a solution");
+            else
+                Console.WriteLine("The monomial has no solutuins");
+        }
 
         //find lowest common denominator
         public static string FractionView(double a,  double b)
@@ -384,27 +399,17 @@ namespace ComputerV1
                 }
             return (a / b).ToString("0.###");
         }
-
-        //square root function.
-        public static float Sqrt(double number)
+        //accurate to 4 decimal points....really slow with big numbers
+        static double Sqrt(double x)
         {
-            const float precision = 0.0001f;
-            float min = 0, result = 0;
-            var max = Convert.ToSingle(number);
-            
-            while (max - min > precision)
+            if (x <= 0)
+                return (x);
+            double t = 0.000001;
+            while (t * t < x)
             {
-                result = (min + max) / 2;
-                if ((result * result) >= number)
-                {
-                    max = result;
-                }
-                else
-                {  
-                    min = result;
-                }  
+                t += 0.000001;
             }
-            return result;
+            return Convert.ToDouble(t.ToString("0.####"));
         }
     }
 }
