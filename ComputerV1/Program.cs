@@ -361,7 +361,6 @@ namespace ComputerV1
                 Console.WriteLine("({1:0.###} / {1:0.###}) * {2} = {0:0.###} / {1:0.###}", b, a, _termChar);
                 //var x = b/ a;
                 Console.WriteLine("----------\nthe solution is:\n{0:0.###}", FractionView(b, a));
-                //Console.WriteLine(FractionView(12, 18));
             }
             else
                 Console.WriteLine("Solution is undefined.");
