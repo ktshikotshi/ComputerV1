@@ -403,11 +403,9 @@ namespace ComputerV1
         {
             if (x <= 0)
                 return (x);
-            double t = 0.000001;
+            var t = 0.000001;
             while (t * t < x)
-            {
                 t += 0.000001;
-            }
             return Convert.ToDouble(t.ToString("0.####"));
         }
     }
