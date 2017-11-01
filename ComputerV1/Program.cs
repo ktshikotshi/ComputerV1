@@ -73,12 +73,14 @@ namespace ComputerV1
             for (; ; );
         }
 
+        //split the string for better usability
         public static string[] Split(string str)
         {
             var s = str.Replace(".", ",");
             return (Regex.Split(s.Replace(" ", ""), @"(\-)|(\+)|(\=)"));
         }
 
+        //check if the equation was entered in natural form
         public static string[] ManageNaturalForm(string[] expr)
         {
             const string pow1 = @"^(\d+)?(\*)?[A-Za-z](\^[1])?$";
@@ -100,6 +102,7 @@ namespace ComputerV1
             return expr;
         }
 
+        //get the degree fo the equation from the term with the highest power, the term should have anon 0 coefficient
         public static bool GetDegree(string[] expression)
         {
             var degree = 0;
@@ -122,6 +125,8 @@ namespace ComputerV1
             _dgree = degree;
             return degree <= 2;
         }
+
+        //get the all the terms of the equation to the left hand side and equate it to 0
         public static string[] NormRgx(string[] expr)
         {
             var exprLis = new ArrayList();
@@ -183,6 +188,7 @@ namespace ComputerV1
             return ((string[])exprLis.ToArray(typeof(string)));
         }
 
+        //find and combine all terms of the same degree.
         public static void MergeDuplicates(ref string[,] arr, ArrayList exprLis, int i, int arrLoc)
         {
             double val1 = 0;
@@ -217,6 +223,8 @@ namespace ComputerV1
                 arr[arrLoc, 1] = (val1 + val2).ToString() + Regex.Match(arr[arrLoc, 1].ToString(), @"\*[a-z]\^\d$", RegexOptions.IgnoreCase);
             }
         }
+
+        //get the coefficient of a term
         public static double getVal(string s,string s1)
         {
             double var = 0;
@@ -224,6 +232,8 @@ namespace ComputerV1
             var = tmp;
             return var;
         }
+
+        //reduce the equation so it looks like a*x^2 + b*x^1 + c*x^0 = 0 (terms are only displayed if its coefficent is a none 0)
         public static string[] ReduceRgx(string[] expr)
         {
             var natural = new string[8];
@@ -294,6 +304,8 @@ namespace ComputerV1
                 BinomialSolve(expr);
                 return;
             }
+
+            //display intermediary steps in solving the equation
             Console.WriteLine("----------");
             Console.WriteLine("a = {0:0.###}, b = {1:0.###}, c = {2:0.###}", a, b ,c);
             Console.WriteLine("----------");
@@ -304,6 +316,8 @@ namespace ComputerV1
             Console.WriteLine("{3} = (-({1:0.###}) ± √({1:0.###}^2 - 4({0:0.###})({2:0.###}))) / 2({0:0.###})", a, b, c, _termChar);
             Console.WriteLine("{4} = ( {0:0.###} ± √({1:0.###} - {2:0.###})) / {3:0.###}", b2, b3, ac4 >= 0 ? ac4 : ac4 * -1, a2, _termChar);
             Console.WriteLine("{3} = ( {0:0.###} ± √({1:0.###})) / {2:0.###}", b2, b3 - ac4, a2, _termChar);
+
+            //display the following if the descriminent is positive (number in Sqrt is > 0)
             if (b3 - ac4 > 0)
             {
                 sqRoot = Sqrt(b3 - (ac4));
@@ -312,6 +326,8 @@ namespace ComputerV1
                 x2 = (b2 - sqRoot) / a2;
                 Console.WriteLine("----------\nDiscriminant is strictly positive, the two solutions are:\n{0}\n{1}", FractionView((b2 + sqRoot), a2), FractionView((b2 - sqRoot), a2));
             }
+
+            //display the following if the descriminent is less than zero (number in Sqrt is < 0)
             else if (b3 - ac4 < 0)
             {
                 sqRoot = Sqrt((b3 - (ac4)) * -1);
@@ -321,6 +337,7 @@ namespace ComputerV1
                 x2 = sqRoot/a2;
                 Console.WriteLine("----------\nDiscriminant is strictly negative, the two solutions are:\n{0} + {1} * i\n{0} - {1} * i", FractionView(b2,a2), FractionView(sqRoot, a2));
             }
+            //display the following if the descriminent is null(0)...if the number in the Sqrt is a zero
             else
             {
                 sqRoot = Sqrt(b3 - (ac4));
@@ -352,6 +369,8 @@ namespace ComputerV1
                     b *= -1;
                 }
             }
+
+            //display intermediary steps in solving the equation
             Console.WriteLine("----------");
             Console.WriteLine("a = {0:0.###}, b = {1:0.###}", a, b);
             Console.WriteLine("{0:0.###}*{2}^1 + ({1:0.###}) = 0", a, b, _termChar);
@@ -368,6 +387,8 @@ namespace ComputerV1
                 Console.WriteLine("Solution is undefined.");
             
         }
+
+        //display apropriate message for equations with a degree of 0
         public static void monomialtypes(string[] expr)
         {
             double a = 0;
@@ -382,7 +403,7 @@ namespace ComputerV1
                 Console.WriteLine("The monomial has no solutuins");
         }
 
-        //find lowest common denominator
+        //find the irreducible fraction of parse vractional number
         public static string FractionView(double a,  double b)
         {
                 for (var i = b; i > 0; i--)
@@ -400,7 +421,9 @@ namespace ComputerV1
                 }
             return (a / b).ToString("0.###");
         }
-        //accurate to 4 decimal points....really slow with big numbers
+
+        //find the square root of the parsed double precision floating point number
+        //this uses the longest method to find the root, it is also the easiest method to understand.
         static double Sqrt(double x)
         {
             if (x <= 0)
@@ -408,6 +431,7 @@ namespace ComputerV1
             var t = 0.000001;
             while (t * t < x)
                 t += 0.000001;
+            //return the root with a maximum of 4 decimal places, to preserve accuracy
             return Convert.ToDouble(t.ToString("0.####"));
         }
     }
