@@ -38,9 +38,10 @@ namespace ComputerV1
                 }
                 if (_dgreeStatus)
                 {
-                        if (_dgree > -1)
+                    GetDegree(expr);
+                    if (_dgree > -1)
                         {
-                            Console.WriteLine("Reduced from: {0}", string.Join(" ", expr));
+                            Console.WriteLine("Reduced from: {0}", string.Join("", expr));
                             Console.WriteLine("Polynomial degree: {0}", _dgree);
                         }
                         switch (_dgree)
@@ -69,6 +70,7 @@ namespace ComputerV1
             }
             else
                 Console.WriteLine("Arguments are not valid.");
+            for (; ; );
         }
 
         public static string[] Split(string str)
@@ -253,12 +255,12 @@ namespace ComputerV1
                     }
                 }
             }
-            natural[0] = coeff[0] >= 0 ? "+" : "-";
-            natural[1] = (coeff[0] > 0?coeff[0]: coeff[0] * -1) + "*" + _termChar + "^2";
-            natural[2] = coeff[1] >= 0 ? "+" : "-";
-            natural[3] = (coeff[1] > 0 ? coeff[1] : coeff[1] * -1) + "*" + _termChar + "^1";
-            natural[4] = coeff[2] >= 0 ? "+" : "-";
-            natural[5] = (coeff[2] > 0 ? coeff[2] : coeff[2] * -1) + "*" + _termChar + "^0";
+            natural[0] = coeff[0] != 0 ? (coeff[0] >= 0 ? "+" : "-" ): "";
+            natural[1] = coeff[0] != 0 ? ((coeff[0] > 0 ? coeff[0]: coeff[0] * -1) + "*" + _termChar + "^2") : "";
+            natural[2] = coeff[1] != 0 ? (coeff[1] >= 0 ? "+" : "-") : "";
+            natural[3] = coeff[1] != 0 ? ((coeff[1] > 0 ? coeff[1] : coeff[1] * -1) + "*" + _termChar + "^1") : "";
+            natural[4] = coeff[2] != 0 ? (coeff[2] >= 0 ? "+" : "-") : "";
+            natural[5] = coeff[2] != 0 ? ((coeff[2] > 0 ? coeff[2] : coeff[2] * -1) + "*" + _termChar + "^0") : "";
             natural[6] = "=";
             natural[7] = "0";
             return (natural);
