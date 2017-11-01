@@ -1,5 +1,7 @@
 # ComputerV1 # 
 Solves simple polynomials upto the 2nd degree
+Doesn't follow OO standards because there is no need as pretty simple to understand as it is and only serves a specific perpose.
+
 ## Features ##
 > * Reduction of Equation down to a*X^2 + b*X^1 + c*X^0 = 0
 > * Simplifying of fractions down to irreducible fractional value.
