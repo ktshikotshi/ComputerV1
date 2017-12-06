@@ -16,11 +16,12 @@ namespace ComputerV1
             for (var i = 0; i < split.Length; i++)
                 Reduce(split[i], ref numbs, negate:(i+1==split.Length?true:false));
             expressionValues = numbs;
-            Console.WriteLine($"Reduced from : {(numbs[0]!=0? $"{numbs[0]}X^2": "")}" +
-                $"{(numbs[0] !=0? $"{(numbs[1] > 0? $" + {numbs[1]}" : $" - {-1 * numbs[1]}X")}":"")}" +
-                $"{(numbs[2] != 0 ? $"{(numbs[2] > 0 ? $" + {numbs[2]}" : $" - {-1 * numbs[2]}")}" : "")} = 0");
-            for (var i = 2; i < 0; i++)
-                if (numbs[i] != 0) { Console.WriteLine($"Degree of Polynomial is {i}"); break; }
+            string  rd = $"{(numbs[0] != 0 ? $"{numbs[0]}X^2 " : "")}" +
+                $"{(numbs[1] != 0 ? $"{(numbs[1] > 0 ? $"+ {numbs[1]}" : $"- {-1 * numbs[1]}")}X " : "")}" +
+                $"{(numbs[2] != 0 ? $"{(numbs[2] > 0 ? $"+ {numbs[2]}" : $"- {-1 * numbs[2]}")}" : "")} = 0";
+            Console.WriteLine("Reduced from : "+rd.TrimStart('+',' '));
+            for (var i = 0; i < 3; i++)
+                if (numbs[i] != 0) { Console.WriteLine($"Degree of Polynomial is {2-i}"); break; }
         }
         private void Reduce(string expression, ref double[] vals, bool negate)
         {
