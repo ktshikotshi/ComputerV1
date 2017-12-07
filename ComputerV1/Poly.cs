@@ -25,7 +25,7 @@ namespace ComputerV1
         }
         private void Reduce(string expression, ref double[] vals, bool negate)
         {
-            var regex = new Regex(@"((\-)?\d+([,.]\d+)?)([xX](\^((\-)?\d+([,.]\d+)?)?)?)?");
+            var regex = new Regex(@"((\-)?\d+([,.]\d+)?)?([xX](\^((\-)?\d+([,.]\d+)?)?)?)?");
             var mathes = regex.Matches(expression.Replace('.',','));
             for (var i = 0; i < mathes.Count; i++)
             {
@@ -36,10 +36,12 @@ namespace ComputerV1
                     { throw new InvalidEquationException($"Polinomial degree is " +
                         $"{(double.Parse(match.Substring(match.IndexOf('^') + 1)) > 2? "greater than 2": "less than 1")}, kthxbye!"); }
                     else
-                        vals[0] += (negate == false ? 1 :-1) * double.Parse(Regex.Match(match, @"^((\-)?\d+([,.]\d+)?)").Value);
+                        vals[0] += (negate == false ? 1 :-1) * double.Parse(!Regex.IsMatch(match, @"^((\-)?\d+([,.]\d+)?)") ? "1"
+                        : Regex.Match(match, @"^((\-)?\d+([,.]\d+)?)").Value);
                 }
-                else if (Regex.IsMatch(match, @"^((\-)?\d+([,.]\d+)?)([xX])$"))
-                    vals[1] += (negate == false ? 1 : -1) * double.Parse(Regex.Match(match, @"^((\-)?\d+([,.]\d+)?)").Value);
+                else if (Regex.IsMatch(match, @"^(((\-)?\d+([,.]\d+)?)?([xX]))$"))
+                    vals[1] += (negate == false ? 1 : -1) * double.Parse(!Regex.IsMatch(match, @"^((\-)?\d+([,.]\d+)?)")? "1" 
+                        : Regex.Match(match, @"^((\-)?\d+([,.]\d+)?)").Value);
                 else if (Regex.IsMatch(match, @"^((\-)?\d+([,.]\d+)?)$"))
                     vals[2] += (negate == false? 1 : -1) * double.Parse(Regex.Match(match, @"^((\-)?\d+([,.]\d+)?)").Value);
             }
@@ -66,13 +68,11 @@ namespace ComputerV1
                 else Console.WriteLine("All real numbers are solution.");
             }
         }
-        static double Sqrt(double x)
+        private double Sqrt(double x)
         {
-            if (x <= 0)
-                return (x);
+            if (x <= 0) return (x);
             var t = 0.000001;
-            while (t * t < x)
-                t += 0.000001;
+            while (t * t < x) t += 0.000001;
             return double.Parse(t.ToString("0.####"));
         }
     }
