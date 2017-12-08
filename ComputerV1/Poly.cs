@@ -5,7 +5,7 @@ namespace ComputerV1
 {
     class Poly
     {
-        private double[] expressionValues;
+        private double[] _expressionValues;
         public Poly(string expression) => ParseExpression(expression);
         private void ParseExpression(string expression)
         {
@@ -15,14 +15,15 @@ namespace ComputerV1
             double[] numbs = { 0, 0, 0 };
             for (var i = 0; i < split.Length; i++)
                 Reduce(split[i], ref numbs, negate:(i+1==split.Length?true:false));
-            expressionValues = numbs;
-            string  rd = $"{(numbs[0] != 0 ? $"{numbs[0]}X^2 " : "")}" +
+            _expressionValues = numbs;
+            var  rd = $"{(numbs[0] != 0 ? $"{numbs[0]}X^2 " : "")}" +
                 $"{(numbs[1] != 0 ? $"{(numbs[1] > 0 ? $"+ {numbs[1]}" : $"- {-1 * numbs[1]}")}X " : "")}" +
                 $"{(numbs[2] != 0 ? $"{(numbs[2] > 0 ? $"+ {numbs[2]}" : $"- {-1 * numbs[2]}")}" : "")} = 0";
             Console.WriteLine("Reduced from : "+rd.TrimStart('+',' '));
             for (var i = 0; i < 3; i++)
                 if (numbs[i] != 0) { Console.WriteLine($"Degree of Polynomial is {2-i}"); break; }
         }
+        
         private void Reduce(string expression, ref double[] vals, bool negate)
         {
             var regex = new Regex(@"((\-)?\d+([,.]\d+)?)?([xX](\^((\-)?\d+([,.]\d+)?)?)?)?");
@@ -46,11 +47,12 @@ namespace ComputerV1
                     vals[2] += (negate == false? 1 : -1) * double.Parse(Regex.Match(match, @"^((\-)?\d+([,.]\d+)?)").Value);
             }
         }
+        
         public void Calculate()
         {
-            if (expressionValues[0] == 0) { Binomial();  return; }
-            double a = expressionValues[0], b = expressionValues[1], c = expressionValues[2];
-            double complex = Sqrt(((b * b) - (4 * a * c)) * -1) / (2 * a);
+            if (_expressionValues[0] == 0) { Binomial();  return; }
+            double a = _expressionValues[0], b = _expressionValues[1], c = _expressionValues[2];
+            var complex = Sqrt(((b * b) - (4 * a * c)) * -1) / (2 * a);
             if (((b * b) - (4 * a * c)) > 0)
                 Console.WriteLine($"Solutions on R :\n{((-1*b) - Sqrt((b*b)-(4*a*c))) / (2 * a):0.###}\n{((-1*b) + Sqrt((b * b) - (4 * a * c))) / (2 * a):0.###}");
             else if (((b * b) - (4 * a * c)) < 0)
@@ -60,11 +62,11 @@ namespace ComputerV1
         }
         private void Binomial()
         {
-            if (expressionValues[1] != 0)
-                Console.WriteLine($"Solution on R:\n{(-1 * expressionValues[2]) / expressionValues[1]:0.###}");
+            if (_expressionValues[1] != 0)
+                Console.WriteLine($"Solution on R:\n{(-1 * _expressionValues[2]) / _expressionValues[1]:0.###}");
             else
             {
-                if (expressionValues[2] == 0) Console.WriteLine("Solution is undefined.");
+                if (_expressionValues[2] == 0) Console.WriteLine("Solution is undefined.");
                 else Console.WriteLine("All real numbers are solution.");
             }
         }
