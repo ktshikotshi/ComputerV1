@@ -25,8 +25,10 @@ namespace ComputerV1
         }
         private void Reduce(string expression, ref double[] vals, bool negate)
         {
-            var regex = new Regex(@"((\-)?\d+([,.]\d+)?)?([xX](\^((\-)?\d+([,.]\d+)?)?)?)?");
+            var regex = new Regex(@"(?<=\+)?((\-)?\d+([,.]\d+)?)?([xX](\^((\-)?\d+([,.]\d+)?)?)?)?");
             var mathes = regex.Matches(expression.Replace('.',','));
+            expression = regex.Replace(expression, "");
+
             for (var i = 0; i < mathes.Count; i++)
             {
                 var match = mathes[i].Value;
@@ -52,21 +54,33 @@ namespace ComputerV1
             double a = expressionValues[0], b = expressionValues[1], c = expressionValues[2];
             double complex = Sqrt(((b * b) - (4 * a * c)) * -1) / (2 * a);
             if (((b * b) - (4 * a * c)) > 0)
-                Console.WriteLine($"Solutions on R :\n{((-1*b) - Sqrt((b*b)-(4*a*c))) / (2 * a):0.###}\n{((-1*b) + Sqrt((b * b) - (4 * a * c))) / (2 * a):0.###}");
+                Console.WriteLine($"Solutions on R :\n{FractionView(((-1 * b) - Sqrt((b * b) - (4 * a * c))), (2 * a))}\n{ FractionView(((-1*b) + Sqrt((b * b) - (4 * a * c))), (2 * a))}");
             else if (((b * b) - (4 * a * c)) < 0)
-                Console.WriteLine("Solutions on C :\n{0:0.###} + {1:0.###} * i\n{0:0.###} - {1:0.###} * i", -1 * b/ (2 * a), complex > 0? complex : -1 * complex);
+                Console.WriteLine("Solutions on C :\n{0} + {1:0.###} * i\n{0} - {1:0.###} * i", FractionView(-1 * b, (2 * a)), complex > 0? complex : -1 * complex);
             else
-                Console.WriteLine($"Solution on R  : \n{(-1 * b - Sqrt((b * b) - (4 * a * c))) / (2 * a):0.###}");
+                Console.WriteLine($"Solution on R  : \n{FractionView(((-1 * b) + Sqrt((b * b) - (4 * a * c))), (2 * a))}");
         }
         private void Binomial()
         {
             if (expressionValues[1] != 0)
-                Console.WriteLine($"Solution on R:\n{(-1 * expressionValues[2]) / expressionValues[1]:0.###}");
+                Console.WriteLine($"Solution on R:\n{FractionView(-1 * expressionValues[2], expressionValues[1])}");
             else
             {
                 if (expressionValues[2] == 0) Console.WriteLine("Solution is undefined.");
                 else Console.WriteLine("All real numbers are solution.");
             }
+        }
+        //find the irreducible fraction of parse vractional number
+        public static string FractionView(double a, double b)
+        {
+            for (var i = b; i > 0; i--) if (b % i == 0 && a % i == 0) { a /= i; b /= i; }
+            if (a % 1 == 0 && b % 1 == 0)
+            {
+                if (a % b == 0) { return (a / b).ToString("0.###"); }
+                else if ((a >= 0 && b >= 0) || (a < 0 && b < 0)) { return (a >= 0 ? a : a * -1) + "/" + (b >= 0 ? b : b * -1); }
+                else { return "-" + (a >= 0 ? a : a * -1) + "/" + (b >= 0 ? b : b * -1); }
+            }
+            return (a / b).ToString("0.####");
         }
         private double Sqrt(double x)
         {
