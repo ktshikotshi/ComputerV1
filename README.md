@@ -11,5 +11,5 @@ Doesn't follow OO standards because there is no need as pretty simple to underst
 > * [Quastion Paper: English](https://github.com/ktshikotshi/ComputerV1/blob/master/Resources/computorv1.en.pdf)
 > * [Marking Sheet : English](https://github.com/ktshikotshi/ComputerV1/blob/master/Resources/ComputerV1-marking%20sheet.pdf)
 ### Author ###
-[ktshikotshi](https://github.com/ktshikotshi)\n
-[goisetsi](https://github.com/goisetsi)
+> [ktshikotshi](https://github.com/ktshikotshi)
+> [goisetsi](https://github.com/goisetsi)
