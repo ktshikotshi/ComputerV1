@@ -12,3 +12,4 @@ Doesn't follow OO standards because there is no need as pretty simple to underst
 > * [Marking Sheet : English](https://github.com/ktshikotshi/ComputerV1/blob/master/Resources/ComputerV1-marking%20sheet.pdf)
 ### Author ###
 [ktshikotshi](https://github.com/ktshikotshi)
+[goisetsi](https://github.com/goisetsi)
